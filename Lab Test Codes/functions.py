@@ -4,7 +4,7 @@ import adafruit_mcp4728
 from ads1015 import ADS1015
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.gridspec import GridSpec
+from matplotlib.gridspec import GridSpec 
 
 #*********************************************************************#
 ##################### Analog to Digital Converter #####################

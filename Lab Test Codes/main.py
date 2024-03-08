@@ -1,5 +1,7 @@
 import functions as FISH
-import numpy as np 
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.gridspec import GridSpec
 import time 
 import board
 import busio
@@ -8,7 +10,6 @@ from ads1015 import ADS1015
 
 ads1015 = ADS1015()
 
-
 # Initialize I2C bus
 i2c = busio.I2C(board.SCL, board.SDA)
 
@@ -16,6 +17,14 @@ i2c = busio.I2C(board.SCL, board.SDA)
 mcp4728 = adafruit_mcp4728.MCP4728(i2c)
 
 FISH.read_ADC()
+
+left_flowmeter_pin   = 1
+center_flowmeter_pin = 1
+right_flowmeter_pin  = 1
+
+left_flowmeter   = []
+center_flowmeter = []
+right_flowmeter  = []
 
 if __name__ == "__main__":
     # GPIO.setmode(GPIO.BOARD)
@@ -48,8 +57,8 @@ if __name__ == "__main__":
             # update_plot()
 
     except KeyboardInterrupt:
-        # GPIO.cleanup()
+        GPIO.cleanup()
         print("\n*********\ngame over\n*********\n")
 
-        # plt.ioff()  # Turn off interactive mode
-        # plt.show()
+        plt.ioff()  # Turn off interactive mode
+        plt.show()

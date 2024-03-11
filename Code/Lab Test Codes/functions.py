@@ -1,6 +1,7 @@
 import board
 import busio
 import adafruit_mcp4728
+import Jetson.GPIO as GPIO
 from ads1015 import ADS1015
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,8 +12,6 @@ from matplotlib.gridspec import GridSpec
 #*********************************************************************#
 
 def read_ADC(ads1015, gain=2.048):
-
-    # ads1015 = ADS1015()
 
     ads1015.set_mode("single")
     ads1015.set_programmable_gain(gain)

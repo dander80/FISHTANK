@@ -5,7 +5,7 @@ import time
 import random 
 
 # Function to grab new random data
-def grab_data():
+def grab_data(): 
     global t_array, mass_flow_left, mass_flow_right, mass_flow_center, \
         tank_height_left_setpoint, tank_height_left_measurement, \
         tank_height_right_setpoint, tank_height_right_measurement, \

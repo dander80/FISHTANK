@@ -151,7 +151,7 @@ if __name__ == "__main__":
             print('ab to update plot')
 
             FISH.update_plot(data, axs1, axs2, axs3, axs4, axs5, axs6, axs7)
-            # plt.show()
+            plt.ion()
             # time.sleep(1.0)
             print(data['time']['rel'][i])
             i += 1

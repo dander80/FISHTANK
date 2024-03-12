@@ -65,17 +65,57 @@ if __name__ == "__main__":
 
     data['tank1']['level']['m'].append(0) 
     data['tank1']['level']['sp'].append(0) 
-    data['tank1']['mdot'].append(0) 
+    data['tank1']['mdot'].append(np.random.normal(0.3, 0.01, 1)) 
 
     data['tank2']['level']['m'].append(0) 
     data['tank2']['level']['sp'].append(0) 
-    data['tank2']['mdot'].append(0) 
+    data['tank2']['mdot'].append(np.random.normal(0.3, 0.01, 1)) 
 
-    data['pump']['mdot'].append(0) 
+    data['pump']['mdot'].append(np.random.normal(0.6, 0.02, 1)) 
 
-    fig, gs, axs1, axs2, axs3, axs4, axs5, axs6, axs7 = FISH.init_plot()
+    fig = plt.figure(figsize=(18, 15))
+    gs = GridSpec(6, 2, figure=fig)
+
+    axs1 = fig.add_subplot(gs[:2, :])
+    axs1.set_title('Mass Flow Rates')
+    axs1.set_ylabel('kg/s')
+    # Plot 2: Left Tank Height
+    axs2 = fig.add_subplot(gs[2:4, 0])
+    axs2.set_title('Left Tank Height')
+    axs2.set_ylabel('% Full')
+    # Plot 3: Right Tank Height
+    axs3 = fig.add_subplot(gs[2:4, 1])
+    axs3.set_title('Right Tank Height')
+    axs3.set_ylabel('% Full')
+    # Plot 4: Left Control Valve
+    axs4 = fig.add_subplot(gs[4, 0])
+    axs4.set_title('Left Control Valve')
+    axs4.set_ylabel('% open')
+    # Plot 5: Right Control Valve
+    axs5 = fig.add_subplot(gs[4, 1])
+    axs5.set_title('Right Control Valve')
+    axs5.set_ylabel('% open')
+    # Plot 6: Actuator Degradation Valve Openness
+    axs6 = fig.add_subplot(gs[5, 0])
+    axs6.set_title('Actuator Degradation Valve Openness')
+    axs6.set_ylabel('% open')
+    # Plot 7: Leak Valve Openness
+    axs7 = fig.add_subplot(gs[5, 1])
+    axs7.set_title('Leak Valve Openness')
+    axs7.set_ylabel('% open')
+    # Display 
+    print('a')
+    plt.tight_layout(pad=2)
+
+    print('plot initialized')
+
+    # plt.ion()
+    # axs1, axs2, axs3, axs4, axs5, axs6, axs7 = FISH.init_plot(fig, gs)
+
+    # plt.show()
 
     try:
+        print('start')
         i = 0
         while True:
             # Update time 
@@ -107,10 +147,13 @@ if __name__ == "__main__":
             data['cv2']['sp'].append(CV_2_setpoint[i])
             data['res']['sp'].append(resistance_setpoint[i])
             data['leak']['sp'].append(leak_setpoint[i])
+            
+            print('ab to update plot')
 
             FISH.update_plot(data, axs1, axs2, axs3, axs4, axs5, axs6, axs7)
-
-            time.sleep(1.0)
+            # plt.show()
+            # time.sleep(1.0)
+            print(data['time']['rel'][i])
             i += 1
 
     except KeyboardInterrupt:

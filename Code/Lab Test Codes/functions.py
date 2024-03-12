@@ -47,10 +47,7 @@ def set_DAC(mcp4728, pinA, pinB, pinC, pinD):
 #*********************************************************************#
 ############################## Plotting ###############################
 #*********************************************************************#
-def init_plot():
-    # Create GridSpec
-    fig = plt.figure(figsize=(18, 15))
-    gs = GridSpec(6, 2, figure=fig)
+def init_plot(fig, gs):
     # Plot 1: Mass Flow Rates
     axs1 = fig.add_subplot(gs[:2, :])
     axs1.set_title('Mass Flow Rates')
@@ -81,8 +78,8 @@ def init_plot():
     axs7.set_ylabel('% open')
     # Display 
     plt.tight_layout(pad=2)
-    plt.draw()
-    return fig, gs, axs1, axs2, axs3, axs4, axs5, axs6, axs7
+    # plt.draw()
+    return axs1, axs2, axs3, axs4, axs5, axs6, axs7
 
 def update_plot(data, axs1, axs2, axs3, axs4, axs5, axs6, axs7): 
 
@@ -92,7 +89,7 @@ def update_plot(data, axs1, axs2, axs3, axs4, axs5, axs6, axs7):
     SmokeyGray   = '#58595B'
     LadyVolsBlue = '#0CA4DC'
 
-    if data['time']['rel'] > t_min:
+    if data['time']['rel'][-1] > t_min:
         # time
         t_array = t_array[-t_min:]
 

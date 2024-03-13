@@ -166,6 +166,16 @@ def set_DAC(mcp4728, pinA, pinB, pinC, pinD):
     mcp4728.channel_c.value = int(65535 * pinC/100)
     mcp4728.channel_d.value = int(65535 * pinD/100)
 
+def read_ADC(ads1015):
+    Vref = 3.3
+    # read values from ADC
+    channel_a = ads1015.get_voltage(channel="in0/gnd") * 100 / Vref
+    channel_b = ads1015.get_voltage(channel="in1/gnd") * 100 / Vref
+    channel_c = ads1015.get_voltage(channel="in2/gnd") * 100 / Vref
+    channel_d = ads1015.get_voltage(channel="in3/gnd") * 100 / Vref
+
+    return([channel_a, channel_b, channel_c, channel_d]) 
+
 CV_1_setpoint = np.ones(1000) * 50
 CV_2_setpoint = np.ones(1000) * 50
 resistance_setpoint = np.ones(1000) * 50
@@ -184,7 +194,7 @@ data = {'time':     {'abs': [], 'rel': []},
 
 if __name__ == "__main__":
 
-    init_valve_pos = FISH.read_ADC(ads1015) # cv1, cv2, res, leak 
+    init_valve_pos = read_ADC(ads1015) # cv1, cv2, res, leak 
 
     data['time']['abs'].append(time.time())
     data['time']['rel'].append(0)
@@ -243,15 +253,10 @@ if __name__ == "__main__":
     axs7 = fig.add_subplot(gs[5, 1])
     axs7.set_title('Leak Valve Openness')
     axs7.set_ylabel('% open')
-    # Display 
-    print('a')
+
     plt.tight_layout(pad=2)
     print('plot initialized')
 
-    # plt.ion()
-    # axs1, axs2, axs3, axs4, axs5, axs6, axs7 = FISH.init_plot(fig, gs)
-
-    # plt.show()
 
     try:
         print('start')
@@ -273,7 +278,7 @@ if __name__ == "__main__":
             data['tank2']['level']['sp'].append(0) 
 
             # read in values from ADC 
-            cur_valve_pos = FISH.read_ADC(ads1015) # cv1, cv2, res, leak 
+            cur_valve_pos = read_ADC(ads1015) # cv1, cv2, res, leak 
             # append values to data
             data['cv1']['m'].append(cur_valve_pos[0])
             data['cv2']['m'].append(cur_valve_pos[1])

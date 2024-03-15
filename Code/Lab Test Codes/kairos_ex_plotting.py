@@ -133,7 +133,7 @@ def update_plot():
     axs7.set_ylabel('% open')
     axs7.set_ylim(-5, 105)
 
-    plt.tight_layout()
+    plt.tight_layout(pad=2)
     plt.draw()
     plt.pause(0.01)
 

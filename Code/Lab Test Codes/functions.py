@@ -13,12 +13,12 @@ from matplotlib.gridspec import GridSpec
 #*********************************************************************#
 
 def read_ADC(ads1015):
-
+    Vref = 5
     # read values from ADC
-    channel_a = ads1015.get_voltage(channel="in0/gnd")
-    channel_b = ads1015.get_voltage(channel="in1/gnd")
-    channel_c = ads1015.get_voltage(channel="in2/gnd")
-    channel_d = ads1015.get_voltage(channel="in3/gnd")
+    channel_a = ads1015.get_voltage(channel="in0/gnd") * 100 / Vref
+    channel_b = ads1015.get_voltage(channel="in1/gnd") * 100 / Vref
+    channel_c = ads1015.get_voltage(channel="in2/gnd") * 100 / Vref
+    channel_d = ads1015.get_voltage(channel="in3/gnd") * 100 / Vref
 
     return([channel_a, channel_b, channel_c, channel_d]) 
 
@@ -28,10 +28,10 @@ def read_ADC(ads1015):
 
 def set_DAC(mcp4728, pinA, pinB, pinC, pinD):
     # Set DAC values
-    mcp4728.channel_a.value = int(65535 * pinA)
-    mcp4728.channel_b.value = int(65535 * pinB)
-    mcp4728.channel_c.value = int(65535 * pinC)
-    mcp4728.channel_d.value = int(65535 * pinD)
+    mcp4728.channel_a.value = int(65535 * pinA/100)
+    mcp4728.channel_b.value = int(65535 * pinB/100)
+    mcp4728.channel_c.value = int(65535 * pinC/100)
+    mcp4728.channel_d.value = int(65535 * pinD/100)
 
 #*********************************************************************#
 ############################## Flowmeter ##############################
@@ -47,10 +47,7 @@ def set_DAC(mcp4728, pinA, pinB, pinC, pinD):
 #*********************************************************************#
 ############################## Plotting ###############################
 #*********************************************************************#
-def init_plot():
-    # Create GridSpec
-    fig = plt.figure(figsize=(18, 15))
-    gs = GridSpec(6, 2, figure=fig)
+def init_plot(fig, gs):
     # Plot 1: Mass Flow Rates
     axs1 = fig.add_subplot(gs[:2, :])
     axs1.set_title('Mass Flow Rates')
@@ -81,8 +78,8 @@ def init_plot():
     axs7.set_ylabel('% open')
     # Display 
     plt.tight_layout(pad=2)
-    plt.draw()
-    return fig, gs, axs1, axs2, axs3, axs4, axs5, axs6, axs7
+    # plt.draw()
+    return axs1, axs2, axs3, axs4, axs5, axs6, axs7
 
 def update_plot(data, axs1, axs2, axs3, axs4, axs5, axs6, axs7): 
 
@@ -92,7 +89,7 @@ def update_plot(data, axs1, axs2, axs3, axs4, axs5, axs6, axs7):
     SmokeyGray   = '#58595B'
     LadyVolsBlue = '#0CA4DC'
 
-    if data['time']['rel'] > t_min:
+    if data['time']['rel'][-1] > t_min:
         # time
         t_array = t_array[-t_min:]
 
@@ -195,7 +192,7 @@ def update_plot(data, axs1, axs2, axs3, axs4, axs5, axs6, axs7):
     axs6.legend(loc='upper left') 
     axs6.set_ylim(-5, 105)
 
-    # axs7.clear()
+    # axs7.clear()Plotting
     # if np.average(leak_valve) == 0:
     #     axs7.plot(t_array, leak_valve, color='green')
     # else:
@@ -216,7 +213,7 @@ def update_plot(data, axs1, axs2, axs3, axs4, axs5, axs6, axs7):
     plt.draw()
 
 #*********************************************************************#
-############################## Plotting ###############################
+############################## Valve Grab Data ###############################
 #*********************************************************************#
 def valve_test_grab_data(data):
     # FAKE mass flow rates

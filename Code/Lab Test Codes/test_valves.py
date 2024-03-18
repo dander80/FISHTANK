@@ -159,16 +159,19 @@ def update_plot(data):
     plt.draw()
     plt.pause(0.01)
 
-def set_DAC(mcp4728, pinA, pinB, pinC, pinD):
+def set_DAC(mcp4728, Vref, pinA, pinB, pinC, pinD):
     # Set DAC values
-    mcp4728.channel_a.value = int(65535 * pinA/100)
-    mcp4728.channel_b.value = int(65535 * pinB/100)
-    mcp4728.channel_c.value = int(65535 * pinC/100)
-    mcp4728.channel_d.value = int(65535 * pinD/100)
+    # Enter PIN values as a PERCENTAGE
+    mcp4728.channel_a.value = int(Vref * pinA/100)
+    mcp4728.channel_b.value = int(Vref * pinB/100)
+    mcp4728.channel_c.value = int(Vref * pinC/100)
+    mcp4728.channel_d.value = int(Vref * pinD/100)
 
-def read_ADC(ads1015):
-    Vref = 3.3
-    # read values from ADC
+def read_ADC(ads1015, Vref = 3.3):
+    # Read values from ADC
+    # Returns array containing percentages of Vref 
+    # (i.e., 1.65V in while Vref=3.3V --> 50)
+    
     channel_a = ads1015.get_voltage(channel="in0/gnd") * 100 / Vref
     channel_b = ads1015.get_voltage(channel="in1/gnd") * 100 / Vref
     channel_c = ads1015.get_voltage(channel="in2/gnd") * 100 / Vref
@@ -286,18 +289,15 @@ if __name__ == "__main__":
             data['leak']['m'].append(cur_valve_pos[3])
 
             # controller calculation here: recieve the variables CV_1_setpoint[i], CV_2_setpoint[i], resistance_setpoint[i], leak_setpoint[i]
-            set_DAC(mcp4728, CV_1_setpoint[i], CV_2_setpoint[i], resistance_setpoint[i], leak_setpoint[i])
+            set_DAC(mcp4728, 4095, CV_1_setpoint[i], CV_2_setpoint[i], resistance_setpoint[i], leak_setpoint[i])
             data['cv1']['sp'].append(CV_1_setpoint[i])
             data['cv2']['sp'].append(CV_2_setpoint[i])
             data['res']['sp'].append(resistance_setpoint[i])
             data['leak']['sp'].append(leak_setpoint[i])
-            
-            print('ab to update plot')
 
             update_plot(data)
-            # plt.ion()
-            # time.sleep(1.0)
-            print(data['time']['rel'][i])
+            
+            print(data['time']['rel'][-1])
             i += 1
 
     except KeyboardInterrupt:

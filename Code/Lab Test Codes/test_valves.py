@@ -290,13 +290,10 @@ if __name__ == "__main__":
             data['leak']['m'].append(cur_valve_pos[3])
 
 
-
+            # every 20 seconds, caluclate a new setpoint for the two control valves
             if data['time']['rel'][-1] - last_update_time >= 20:
-                # Update right_sp with a new random integer between 30 and 90
-                # CV_1_rand = random.randint(10, 60)
+                # calculate new random variables
                 CV_1_setpoint = random.randint(10, 60)
-
-                # CV_2_rand = random.randint(10, 60)
                 CV_2_setpoint = random.randint(10, 60)
                 # Update the last update time
                 last_update_time = data['time']['rel'][-1]

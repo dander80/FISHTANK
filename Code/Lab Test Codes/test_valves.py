@@ -179,10 +179,10 @@ def read_ADC(ads1015, Vref = 3.3):
 
     return([channel_a, channel_b, channel_c, channel_d]) 
 
-CV_1_setpoint = np.ones(1000) * 50
-CV_2_setpoint = np.ones(1000) * 50
-resistance_setpoint = np.ones(1000) * 50
-leak_setpoint = np.ones(1000) * 50
+CV_1_setpoint = 1
+CV_2_setpoint = 1
+resistance_setpoint = 1
+leak_setpoint = 1
 
 data = {'time':     {'abs': [], 'rel': []},
         'cv1':      {'m': [], 'sp': []},
@@ -264,6 +264,7 @@ if __name__ == "__main__":
     try:
         print('start')
         i = 0
+        last_update_time = 0
         while True:
             # Update time 
             data['time']['abs'].append(time.time())
@@ -288,12 +289,28 @@ if __name__ == "__main__":
             data['res']['m'].append(cur_valve_pos[2])
             data['leak']['m'].append(cur_valve_pos[3])
 
+
+
+            if data['time']['rel'][-1] - last_update_time >= 20:
+                # Update right_sp with a new random integer between 30 and 90
+                # CV_1_rand = random.randint(10, 60)
+                CV_1_setpoint = random.randint(10, 60)
+
+                # CV_2_rand = random.randint(10, 60)
+                CV_2_setpoint = random.randint(10, 60)
+                # Update the last update time
+                last_update_time = data['time']['rel'][-1]
+
             # controller calculation here: recieve the variables CV_1_setpoint[i], CV_2_setpoint[i], resistance_setpoint[i], leak_setpoint[i]
-            set_DAC(mcp4728, 4095, CV_1_setpoint[i], CV_2_setpoint[i], resistance_setpoint[i], leak_setpoint[i])
-            data['cv1']['sp'].append(CV_1_setpoint[i])
-            data['cv2']['sp'].append(CV_2_setpoint[i])
-            data['res']['sp'].append(resistance_setpoint[i])
-            data['leak']['sp'].append(leak_setpoint[i])
+            set_DAC(mcp4728, 65535, CV_1_setpoint, CV_2_setpoint, resistance_setpoint, leak_setpoint)
+            data['cv1']['sp'].append(CV_1_setpoint)
+            data['cv2']['sp'].append(CV_2_setpoint)
+            data['res']['sp'].append(resistance_setpoint)
+            data['leak']['sp'].append(leak_setpoint)
+
+            
+
+            # print(data['cv1']['sp'],data['cv2']['sp'], data['res']['sp'], data['leak']['sp'])
 
             update_plot(data)
             

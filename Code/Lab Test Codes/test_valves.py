@@ -10,13 +10,12 @@ import adafruit_mcp4728
 import Jetson.GPIO as GPIO
 from ads1015 import ADS1015
 
-print("packages loaded in successfully\n")
+print("Packages loaded in successfully\n")
 
 # DAC initialization commands
 i2c = busio.I2C(board.SCL, board.SDA)
 mcp4728 = adafruit_mcp4728.MCP4728(i2c)
 print("DAC Initialized\n")
-
 
 # ADC initialization commands
 ads1015 = ADS1015()
@@ -179,6 +178,8 @@ def read_ADC(ads1015, Vref = 3.3):
 
     return([channel_a, channel_b, channel_c, channel_d]) 
 
+print("Functions Read \n")
+
 CV_1_setpoint = 1
 CV_2_setpoint = 1
 resistance_setpoint = 1
@@ -224,8 +225,6 @@ if __name__ == "__main__":
 
     data['pump']['mdot'].append(np.random.normal(0.6, 0.02, 1)) 
 
-    # global fig, gs, axs1, axs2, axs3, axs4, axs5, axs6, axs7
-
     fig = plt.figure(figsize=(18, 15))
     gs = GridSpec(6, 2, figure=fig)
 
@@ -258,11 +257,10 @@ if __name__ == "__main__":
     axs7.set_ylabel('% open')
 
     plt.tight_layout(pad=2)
-    print('plot initialized')
-
+    print('Plot Initialized \n')
 
     try:
-        print('start')
+        print('Starting Loop \n')
         i = 0
         last_update_time = 0
         while True:
@@ -304,10 +302,6 @@ if __name__ == "__main__":
             data['cv2']['sp'].append(CV_2_setpoint)
             data['res']['sp'].append(resistance_setpoint)
             data['leak']['sp'].append(leak_setpoint)
-
-            
-
-            # print(data['cv1']['sp'],data['cv2']['sp'], data['res']['sp'], data['leak']['sp'])
 
             update_plot(data)
             

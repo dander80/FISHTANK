@@ -1,0 +1,323 @@
+within NEUP.BOP;
+model NuScaleBOP_INLversion
+  TRANSFORM.Fluid.Machines.SteamTurbine steamTurbine(
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    use_T_start=false,
+    h_a_start=port_a_start.h,
+    m_flow_start=port_a_start.m_flow,
+    m_flow_nominal=port_a_nominal.m_flow,
+    use_T_nominal=false,
+    nUnits=2,
+    energyDynamics=TRANSFORM.Types.Dynamics.DynamicFreeInitial,
+    p_b_start=p_condenser,
+    p_outlet_nominal=p_condenser,
+    d_nominal=Medium.density_ph(steamTurbine.p_inlet_nominal, port_a_nominal.h),
+    p_a_start=header.p_start - valve_TCV.dp_start,
+    p_inlet_nominal=port_a_nominal.p - valve_TCV.dp_nominal)
+    annotation (Placement(transformation(extent={{44,24},{64,44}})));
+
+  NHES.Electrical.Generator generator1(J=1e4)
+    annotation (Placement(transformation(extent={{104,24},{124,44}})));
+  TRANSFORM.Electrical.Sensors.PowerSensor sensorW
+    annotation (Placement(transformation(extent={{134,24},{154,44}})));
+  TRANSFORM.Fluid.FittingsAndResistances.SpecifiedResistance resistance(
+      redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+      R=1)
+    annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+        rotation=90,
+        origin={84,4})));
+  TRANSFORM.Fluid.Volumes.IdealCondenser
+                                    condenser(
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    set_m_flow=true,
+    p=p_condenser)
+    annotation (Placement(transformation(extent={{81,-60},{101,-40}})));
+
+  TRANSFORM.Fluid.Volumes.SimpleVolume volume(
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    use_T_start=false,
+    redeclare model Geometry =
+        TRANSFORM.Fluid.ClosureRelations.Geometry.Models.LumpedVolume.GenericVolume
+        (V=0.01),
+    p_start=p_condenser,
+    h_start=steamTurbine.h_b_start)
+    annotation (Placement(transformation(extent={{62,4},{82,24}})));
+
+  TRANSFORM.Fluid.Volumes.DumpTank reservoir(
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    A=10,
+    p_start=p_reservoir,
+    level_start=10)
+    annotation (Placement(transformation(extent={{-6,-76},{14,-56}})));
+
+  Modelica.Fluid.Fittings.MultiPort multiPort(redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+      nPorts_b=2)      annotation (Placement(transformation(
+        extent={{-4,-10},{4,10}},
+        rotation=90,
+        origin={4,-46})));
+  TRANSFORM.Fluid.Volumes.SimpleVolume feedWaterHeater(
+    use_HeatPort=true,
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    p_start=port_b_start.p,
+    redeclare model Geometry =
+        TRANSFORM.Fluid.ClosureRelations.Geometry.Models.LumpedVolume.GenericVolume
+        (V=5),
+    use_T_start=false,
+    h_start=port_b_start.h)
+    annotation (Placement(transformation(extent={{-66,-56},{-86,-36}})));
+
+  TRANSFORM.HeatAndMassTransfer.BoundaryConditions.Heat.HeatFlow    boundary(use_port=
+        true)
+    annotation (Placement(transformation(extent={{-98,-76},{-78,-56}})));
+  TRANSFORM.Controls.LimPID PID(
+    controllerType=Modelica.Blocks.Types.SimpleController.PI,
+    yb=1e8,
+    k=1e8,
+    k_s=1/port_b_nominal.T,
+    k_m=1/port_b_nominal.T)
+    annotation (Placement(transformation(extent={{-104,-62},{-96,-70}})));
+  Modelica.Blocks.Sources.RealExpression realExpression(y=port_b_nominal.T)
+    annotation (Placement(transformation(extent={{-120,-72},{-110,-60}})));
+  TRANSFORM.Fluid.Sensors.Temperature temperature(redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium)
+    annotation (Placement(transformation(extent={{-92,-48},{-100,-56}})));
+  Modelica.Fluid.Fittings.MultiPort multiPort1(redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+      nPorts_b=if nPorts_a3 > 0 then nPorts_a3 + 2 else 2)
+                       annotation (Placement(transformation(
+        extent={{-4,-10},{4,10}},
+        rotation=90,
+        origin={84,-32})));
+  TRANSFORM.Fluid.FittingsAndResistances.SpecifiedResistance resistance1(
+      redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+      R=1)
+    annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+        rotation=180,
+        origin={-126,-46})));
+  TRANSFORM.Fluid.Sensors.Pressure pressure(redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium)
+    annotation (Placement(transformation(extent={{-106,84},{-86,104}})));
+  TRANSFORM.Fluid.Valves.ValveCompressible valve_BV(
+    rho_nominal=Medium.density_ph(port_a_nominal.p, port_a_nominal.h),
+    p_nominal=port_a_nominal.p,
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    m_flow_nominal=port_a_nominal.m_flow,
+    dp_nominal=100000)
+    annotation (Placement(transformation(extent={{-76,24},{-56,44}})));
+
+  TRANSFORM.Fluid.Volumes.SimpleVolume volume_bypass(
+    use_T_start=false,
+    h_start=port_a_start.h,
+    redeclare model Geometry =
+        TRANSFORM.Fluid.ClosureRelations.Geometry.Models.LumpedVolume.GenericVolume
+        (V=0.01),
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    p_start=p_condenser)
+                   "included for numeric purposes"
+    annotation (Placement(transformation(extent={{-26,24},{-6,44}})));
+
+  TRANSFORM.Fluid.FittingsAndResistances.SpecifiedResistance resistance3(R=1,
+      redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium)
+    annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+        rotation=90,
+        origin={4,24})));
+  TRANSFORM.Fluid.Valves.ValveCompressible valve_TCV(
+    rho_nominal=Medium.density_ph(port_a_nominal.p, port_a_nominal.h),
+    p_nominal=port_a_nominal.p,
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    m_flow_nominal=port_a_nominal.m_flow,
+    dp_nominal=100000)
+    annotation (Placement(transformation(extent={{-76,64},{-56,84}})));
+
+  TRANSFORM.Fluid.Volumes.MixingVolume header(
+    use_T_start=false,
+    h_start=port_a_start.h,
+    p_start=port_a_start.p,
+    nPorts_a=1,
+    nPorts_b=3,
+    redeclare model Geometry =
+        TRANSFORM.Fluid.ClosureRelations.Geometry.Models.LumpedVolume.GenericVolume
+        (V=1),
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium)
+    annotation (Placement(transformation(extent={{-116,64},{-96,84}})));
+  TRANSFORM.Fluid.FittingsAndResistances.SpecifiedResistance resistance4(R=1,
+      redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium)
+    annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+        rotation=180,
+        origin={-126,74})));
+  TRANSFORM.Fluid.BoundaryConditions.Boundary_ph boundary_a3[nPorts_a3](
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    each nPorts=1,
+    p=port_a3_nominal_p,
+    h=port_a3_nominal_h) if nPorts_a3 > 0
+    annotation (Placement(transformation(extent={{54,-116},{34,-96}})));
+
+   TRANSFORM.Fluid.Valves.CheckValve checkValve[nPorts_a3](redeclare package
+      Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+      m_flow_start=port_a3_start_m_flow)                   if nPorts_a3 > 0
+     annotation (Placement(transformation(extent={{4,-116},{24,-96}})));
+   TRANSFORM.Fluid.BoundaryConditions.MassFlowSource_h boundary_m_flow_a3[
+     nPorts_a3](
+    redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+    each nPorts=1,
+    each use_m_flow_in=true,
+    each use_h_in=true)  if nPorts_a3 > 0
+     annotation (Placement(transformation(extent={{76,-116},{96,-96}})));
+
+  TRANSFORM.Fluid.Sensors.MassFlowRate massFlowRate[nPorts_a3](redeclare
+      package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium)
+                               if nPorts_a3 > 0
+    annotation (Placement(transformation(extent={{-26,-116},{-6,-96}})));
+  TRANSFORM.Fluid.Sensors.SpecificEnthalpyTwoPort
+                                           specificEnthalpy[nPorts_a3](
+      redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium)
+                                         if nPorts_a3 > 0
+    annotation (Placement(transformation(extent={{-56,-116},{-36,-96}})));
+  Modelica.Mechanics.Rotational.Sensors.PowerSensor powerSensor
+    annotation (Placement(transformation(extent={{74,44},{94,24}})));
+  TRANSFORM.Fluid.FittingsAndResistances.SpecifiedResistance resistance2(R=1,
+      redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium)
+    annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+        rotation=180,
+        origin={-46,-46})));
+  TRANSFORM.Controls.LimPID_Hysteresis PID1(
+    controllerType=Modelica.Blocks.Types.SimpleController.PI,
+    k_s=1/reservoir.level_start,
+    k_m=1/reservoir.level_start,
+    k=1e2,
+    yMin=0,
+    eOn=0.1*reservoir.level_start)
+    annotation (Placement(transformation(extent={{-58,-16},{-38,4}})));
+  Modelica.Blocks.Sources.RealExpression level_setpoint(y=reservoir.level_start)
+    annotation (Placement(transformation(extent={{-90,-16},{-70,4}})));
+  Modelica.Blocks.Sources.RealExpression level_measure(y=reservoir.level)
+    "noEvent(if time < 10 then reservoir.level_start else reservoir.level)"
+    annotation (Placement(transformation(extent={{-90,-28},{-70,-8}})));
+  TRANSFORM.Fluid.BoundaryConditions.MassFlowSource_T boundary2(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    use_m_flow_in=true,
+    T=298.15,
+    nPorts=1)
+    annotation (Placement(transformation(extent={{-24,-36},{-4,-16}})));
+  Modelica.Fluid.Interfaces.FluidPort_a port_a(redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+      m_flow(min=if allowFlowReversal then -Constants.inf else 0))
+    "Fluid connector a (positive design flow direction is from port_a to port_b)"
+    annotation (Placement(transformation(extent={{-166,64},{-146,84}}),
+        iconTransformation(extent={{-110,30},{-90,50}})));
+  Modelica.Fluid.Interfaces.FluidPort_b port_b(redeclare package Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+      m_flow(max=if allowFlowReversal then +Constants.inf else 0))
+    "Fluid connector b (positive design flow direction is from port_a to port_b)"
+    annotation (Placement(transformation(extent={{-166,-16},{-146,4}}),
+        iconTransformation(extent={{-110,-50},{-90,-30}})));
+  Modelica.Fluid.Interfaces.FluidPort_a port_a3[nPorts_a3](redeclare package
+      Medium =
+        NHES.Systems.BalanceOfPlant.Turbine.BaseClasses.Record_SubSystem_B.Medium,
+      m_flow(each min=if allowFlowReversal then -Constants.inf else 0))
+    "Fluid connector a (positive design flow direction is from port_a_3 to port_b_3)"
+    annotation (Placement(transformation(extent={{-86,-136},{-66,-116}}),
+        iconTransformation(extent={{-50,-110},{-30,-90}})));
+  NHES.Electrical.Interfaces.ElectricalPowerPort_b portElec_b
+    annotation (Placement(transformation(extent={{154,24},{174,44}}),
+        iconTransformation(extent={{90,-10},{110,10}})));
+equation
+  connect(generator1.portElec,sensorW. port_a)
+    annotation (Line(points={{124,34},{134,34}},
+                                               color={255,0,0}));
+  connect(sensorW.port_b,portElec_b)
+    annotation (Line(points={{154,34},{164,34}},
+                                               color={255,0,0}));
+  connect(steamTurbine.portLP,volume. port_a)
+    annotation (Line(points={{64,40},{64,14},{66,14}},    color={0,127,255}));
+  connect(boundary.port,feedWaterHeater. heatPort)
+    annotation (Line(points={{-78,-66},{-76,-66},{-76,-52}}, color={191,0,0}));
+  connect(temperature.T,PID. u_m) annotation (Line(points={{-98.4,-52},{-100,
+          -52},{-100,-61.2}},
+                        color={0,0,127}));
+  connect(realExpression.y,PID. u_s)
+    annotation (Line(points={{-109.5,-66},{-104.8,-66}}, color={0,0,127}));
+  connect(PID.y,boundary. Q_flow_ext)
+    annotation (Line(points={{-95.6,-66},{-92,-66}},   color={0,0,127}));
+  connect(temperature.port,feedWaterHeater. port_b) annotation (Line(points={{-96,-48},
+          {-96,-46},{-82,-46}},      color={0,127,255}));
+  connect(multiPort.port_a,reservoir. port_a)
+    annotation (Line(points={{4,-50},{4,-57.6}}, color={0,127,255}));
+  connect(volume.port_b,resistance. port_a)
+    annotation (Line(points={{78,14},{84,14},{84,11}},    color={0,127,255}));
+  connect(multiPort1.port_a,condenser. port_a)
+    annotation (Line(points={{84,-36},{84,-43}}, color={0,127,255}));
+  connect(condenser.port_b,multiPort. ports_b[1]) annotation (Line(points={{91,-58},
+          {91,-66},{24,-66},{24,-34},{2,-34},{2,-42}},     color={0,127,255}));
+  connect(volume_bypass.port_a,valve_BV. port_b)
+    annotation (Line(points={{-22,34},{-56,34}},
+                                               color={0,127,255}));
+  connect(volume_bypass.port_b,resistance3. port_a)
+    annotation (Line(points={{-10,34},{4,34},{4,31}},  color={0,127,255}));
+  connect(resistance3.port_b,multiPort1. ports_b[1]) annotation (Line(points={{4,17},{
+          4,-6},{84,-6},{84,-28}},                    color={0,127,255}));
+  connect(resistance.port_b,multiPort1. ports_b[2]) annotation (Line(points={{84,-3},
+          {84,-28}},                        color={0,127,255}));
+  connect(valve_BV.port_a,header. port_b[1]) annotation (Line(points={{-76,34},
+          {-96,34},{-96,73.3333},{-100,73.3333}}, color={0,127,255}));
+  connect(valve_TCV.port_a,header. port_b[2]) annotation (Line(points={{-76,74},
+          {-100,74}},                       color={0,127,255}));
+  connect(port_a,resistance4. port_a)
+    annotation (Line(points={{-156,74},{-133,74}}, color={0,127,255}));
+  connect(resistance4.port_b,header. port_a[1])
+    annotation (Line(points={{-119,74},{-112,74}}, color={0,127,255}));
+  connect(resistance1.port_a,feedWaterHeater. port_b)
+    annotation (Line(points={{-119,-46},{-82,-46}}, color={0,127,255}));
+  connect(resistance1.port_b,port_b)  annotation (Line(points={{-133,-46},{-136,
+          -46},{-136,-6},{-156,-6}},   color={0,127,255}));
+  connect(massFlowRate.m_flow,boundary_m_flow_a3. m_flow_in) annotation (Line(
+        points={{-16,-102.4},{-16,-90},{66,-90},{66,-98},{76,-98}},   color={0,0,
+          127}));
+  connect(specificEnthalpy.h_out,boundary_m_flow_a3. h_in) annotation (Line(
+        points={{-46,-102.4},{-46,-92},{64,-92},{64,-102},{74,-102}}, color={0,0,
+          127}));
+  connect(steamTurbine.shaft_b,powerSensor. flange_a)
+    annotation (Line(points={{64,34},{74,34}},
+                                             color={0,0,0}));
+  connect(powerSensor.flange_b,generator1. shaft_a)
+    annotation (Line(points={{94,34},{104,34}},
+                                              color={0,0,0}));
+  connect(valve_TCV.port_b,steamTurbine. portHP)
+    annotation (Line(points={{-56,74},{44,74},{44,40}},color={0,127,255}));
+  connect(pressure.port,header. port_b[3]) annotation (Line(points={{-96,84},{
+          -96,74},{-100,74},{-100,74.6667}},      color={0,127,255}));
+  connect(feedWaterHeater.port_a,resistance2. port_b)
+    annotation (Line(points={{-70,-46},{-53,-46}}, color={0,127,255}));
+  connect(resistance2.port_a,reservoir. port_b) annotation (Line(points={{-39,-46},
+          {-36,-46},{-36,-80},{4,-80},{4,-74.4}},         color={0,127,255}));
+  connect(level_measure.y,PID1. u_m)
+    annotation (Line(points={{-69,-18},{-48,-18}}, color={0,0,127}));
+  connect(level_setpoint.y,PID1. u_s)
+    annotation (Line(points={{-69,-6},{-60,-6}},   color={0,0,127}));
+  connect(PID1.y,boundary2. m_flow_in) annotation (Line(points={{-37,-6},{-34,
+          -6},{-34,-18},{-24,-18}},  color={0,0,127}));
+  connect(boundary2.ports[1],multiPort. ports_b[2])
+    annotation (Line(points={{-4,-26},{6,-26},{6,-42}}, color={0,127,255}));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+        coordinateSystem(preserveAspectRatio=false)));
+end NuScaleBOP_INLversion;

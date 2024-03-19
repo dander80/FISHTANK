@@ -1,0 +1,19 @@
+within NEUP.BOP;
+block cont_decrease
+  "Use to decrease the TCV valve opening (u1) over a set time (u2)."
+  extends Modelica.Blocks.Interfaces.SI2SO;
+equation
+  y = (0.9) + (0.1/sqrt(1+(u1/u2)^8))
+  annotation (Diagram(graphics={Rectangle(
+          extent={{-100,-72},{100,74}},
+          lineColor={28,108,200},
+          fillColor={102,44,145},
+          fillPattern=FillPattern.Solid), Text(
+          extent={{-70,24},{68,-22}},
+          textColor={28,108,200},
+          textString="TCV Deg v1")}));
+  annotation (experiment(
+      StopTime=1209600,
+      Tolerance=0.0005,
+      __Dymola_Algorithm="Esdirk45a"));
+end cont_decrease;

@@ -1,0 +1,12 @@
+LibraryInfoMenuSeparator(
+  category="libraries",
+  pos=100000)
+
+LibraryInfoMenuCommand(
+  category="libraries",
+  text="TRANSFORM",
+  reference="TRANSFORM",
+  version="0.5",
+  isModel=true,
+  description="TRANSFORM - TRANsient Simulation Framework Of Reconfigurable Models",
+  pos=100001)

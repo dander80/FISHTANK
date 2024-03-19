@@ -1,0 +1,3 @@
+translateModel("NHES.Fluid.HeatExchangers.Generic_HXs.Examples.NTUHX_Example");
+experimentSetupOutput(events=false);
+simulateModel("NHES.Fluid.HeatExchangers.Generic_HXs.Examples.NTUHX_Example", stopTime=100, numberOfIntervals=35, method="Esdirk45a", resultFile="NTUHX");

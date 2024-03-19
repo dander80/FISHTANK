@@ -1,0 +1,98 @@
+within NEUP.BOP;
+model NuScaleBOP_v4_NoFWP
+  TRANSFORM.Fluid.Interfaces.FluidPort_Flow port_a(redeclare package Medium =
+        Modelica.Media.Water.StandardWater)
+    annotation (Placement(transformation(extent={{-102,78},{-82,98}})));
+  TRANSFORM.Fluid.Interfaces.FluidPort_State port_b(redeclare package Medium =
+        Modelica.Media.Water.StandardWater)
+    annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
+  TRANSFORM.Fluid.Machines.SteamTurbine HPTurbine(redeclare package Medium =
+        Modelica.Media.Water.StandardWater,
+    p_a_start(displayUnit="MPa") = 3500000,
+    p_b_start(displayUnit="MPa") = 1000000,
+    use_T_start=false,
+    h_a_start=3e6,
+    m_flow_start=67,                        use_Stodola=false)
+    annotation (Placement(transformation(extent={{-60,60},{-40,80}})));
+  TRANSFORM.Fluid.Machines.SteamTurbine LPTurbine(redeclare package Medium =
+        Modelica.Media.Water.StandardWater,
+    p_a_start(displayUnit="MPa") = 1000000,
+    p_b_start(displayUnit="kPa") = 10000,
+    use_T_start=false,
+    h_a_start=2.7e6,
+    m_flow_start=(1 - 0.18)*67,             use_Stodola=false)
+    annotation (Placement(transformation(extent={{58,60},{78,80}})));
+  TRANSFORM.Fluid.Machines.Pump_SimpleMassFlow Cond_Pump(redeclare package
+      Medium = Modelica.Media.Water.StandardWater, m_flow_nominal=(1 - 0.18)*67)
+    annotation (Placement(transformation(extent={{22,-98},{2,-78}})));
+  TRANSFORM.Fluid.Volumes.IdealCondenser condenser(redeclare package Medium =
+        Modelica.Media.Water.StandardWater, p(displayUnit="kPa") = 10000)
+    annotation (Placement(transformation(extent={{76,-98},{96,-78}})));
+  Modelica.Fluid.Fittings.TeeJunctionVolume teeJunctionVolume(redeclare package
+      Medium = Modelica.Media.Water.StandardWater,
+    p_start(displayUnit="MPa") = 1000000,
+    use_T_start=false,
+    h_start=2.7e6,
+    V=1)
+    annotation (Placement(transformation(extent={{14,86},{-6,66}})));
+  TRANSFORM.Fluid.FittingsAndResistances.NominalLoss Bleed(redeclare package
+      Medium = Modelica.Media.Water.StandardWater,
+    dp_nominal(displayUnit="Pa") = 1e4,
+    m_flow_nominal=0.18*67,
+    p_nominal(displayUnit="Pa") = 1e6,
+    T_nominal=726.15)                              annotation (Placement(
+        transformation(
+        extent={{10,10},{-10,-10}},
+        rotation=90,
+        origin={12,6})));
+  TRANSFORM.Fluid.Volumes.MixingVolume OFWH(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    p_start(displayUnit="MPa") = 1000000,
+    use_T_start=false,
+    h_start=data.h_steam_cold,
+    redeclare model Geometry =
+        TRANSFORM.Fluid.ClosureRelations.Geometry.Models.LumpedVolume.GenericVolume
+        (V=1),
+    nPorts_b=2,
+    nPorts_a=1)
+    annotation (Placement(transformation(extent={{-38,-98},{-18,-78}})));
+  TRANSFORM.Electrical.PowerConverters.Generator generator
+    annotation (Placement(transformation(extent={{96,60},{116,80}})));
+  TRANSFORM.Electrical.Sources.FrequencySource
+                            boundary
+    annotation (Placement(transformation(extent={{206,60},{186,80}})));
+  TRANSFORM.Electrical.Sensors.PowerSensor sensorW
+    annotation (Placement(transformation(extent={{140,60},{160,80}})));
+  NHES.Systems.PrimaryHeatSystem.SMR_Generic.Components.Data.Data_GenericModule
+                                     data(length_steamGenerator_tube=36)
+    annotation (Placement(transformation(extent={{84,84},{100,100}})));
+equation
+  connect(LPTurbine.shaft_a, HPTurbine.shaft_b)
+    annotation (Line(points={{58,70},{-40,70}}, color={0,0,0}));
+  connect(LPTurbine.shaft_b, generator.shaft)
+    annotation (Line(points={{78,70},{96,70}}, color={0,0,0}));
+  connect(generator.port, sensorW.port_a)
+    annotation (Line(points={{116,70},{140,70}}, color={255,0,0}));
+  connect(sensorW.port_b, boundary.port)
+    annotation (Line(points={{160,70},{186,70}}, color={255,0,0}));
+  connect(port_a, HPTurbine.portHP) annotation (Line(points={{-92,88},{-74,88},
+          {-74,76},{-60,76}}, color={0,127,255}));
+  connect(HPTurbine.portLP, teeJunctionVolume.port_2)
+    annotation (Line(points={{-40,76},{-6,76}}, color={0,127,255}));
+  connect(teeJunctionVolume.port_1, LPTurbine.portHP)
+    annotation (Line(points={{14,76},{58,76}}, color={0,127,255}));
+  connect(LPTurbine.portLP, condenser.port_a)
+    annotation (Line(points={{78,76},{79,76},{79,-81}}, color={0,127,255}));
+  connect(condenser.port_b, Cond_Pump.port_a) annotation (Line(points={{86,-96},
+          {56,-96},{56,-88},{22,-88}}, color={0,127,255}));
+  connect(Cond_Pump.port_b, OFWH.port_b[1]) annotation (Line(points={{2,-88},{
+          -10,-88},{-10,-88.5},{-22,-88.5}}, color={0,127,255}));
+  connect(teeJunctionVolume.port_3, Bleed.port_a) annotation (Line(points={{4,
+          66},{4,24},{12,24},{12,13}}, color={0,127,255}));
+  connect(Bleed.port_b, OFWH.port_b[2]) annotation (Line(points={{12,-1},{-6,-1},
+          {-6,-87.5},{-22,-87.5}}, color={0,127,255}));
+  connect(OFWH.port_a[1], port_b) annotation (Line(points={{-34,-88},{-62,-88},
+          {-62,-90},{-90,-90}}, color={0,127,255}));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+        coordinateSystem(preserveAspectRatio=false)));
+end NuScaleBOP_v4_NoFWP;

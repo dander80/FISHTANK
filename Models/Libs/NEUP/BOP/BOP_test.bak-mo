@@ -1,0 +1,28 @@
+within NEUP.BOP;
+model BOP_test
+  NuScaleBOP_v1 nuScaleBOP_v1_1
+    annotation (Placement(transformation(extent={{26,-20},{74,26}})));
+  TRANSFORM.Fluid.BoundaryConditions.Boundary_ph SG_exit(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    p(displayUnit="MPa") = data.p_steam,
+    h=data.h_steam_hot,
+    nPorts=1) annotation (Placement(transformation(extent={{-46,14},{-26,34}})));
+  TRANSFORM.Fluid.BoundaryConditions.Boundary_ph SG_inlet(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    p(displayUnit="MPa") = data.p_steam,
+    h=data.h_steam_cold,
+    nPorts=1)
+    annotation (Placement(transformation(extent={{-44,-30},{-24,-10}})));
+  NHES.Systems.PrimaryHeatSystem.SMR_Generic.Components.Data.Data_GenericModule
+                                     data(length_steamGenerator_tube=36)
+    annotation (Placement(transformation(extent={{82,82},{98,98}})));
+equation
+  connect(SG_exit.ports[1], nuScaleBOP_v1_1.port_a) annotation (Line(points={{
+          -26,24},{0,24},{0,23.24},{27.92,23.24}}, color={0,127,255}));
+  connect(SG_inlet.ports[1], nuScaleBOP_v1_1.port_b) annotation (Line(points={{
+          -24,-20},{2,-20},{2,-17.7},{28.4,-17.7}}, color={0,127,255}));
+  annotation (
+    Icon(coordinateSystem(preserveAspectRatio=false)),
+    Diagram(coordinateSystem(preserveAspectRatio=false)),
+    experiment(StopTime=1000, __Dymola_Algorithm="Esdirk45a"));
+end BOP_test;

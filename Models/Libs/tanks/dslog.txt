@@ -1,0 +1,23 @@
+Model: twotTankscontrolOutlet
+Integration started at 0 using integration method:
+RK-method: esdirk45a
+Local extrapolation
+FSAL
+Continuous extension
+
+
+Integration terminated successfully at T = 500
+   CPU-time for integration                  : 0.206 seconds
+   CPU-time for initialization               : 0.001 seconds
+   Number of result points                   : 1002
+   Number of grid points                     : 1001
+   Number of accepted steps                  : 750
+   Number of rejected steps                  : 432
+   Number of f-evaluations (dynamics)        : 14887
+   Number of crossing function evaluations   : 2251
+   Number of Jacobian-evaluations            : 605
+   Number of model time events               : 1
+   Number of state events                    : 0
+   Number of step events                     : 0
+
+SUCCESSFUL simulation of twotTankscontrolOutlet

@@ -1,0 +1,222 @@
+within NEUP.FMUs;
+model BOP_FMU_try2
+  TRANSFORM.Fluid.Interfaces.FluidPort_Flow port_a(redeclare package Medium =
+        Modelica.Media.Water.StandardWater)
+    annotation (Placement(transformation(extent={{-336,30},{-316,50}}),
+        iconTransformation(extent={{-336,30},{-316,50}})));
+  TRANSFORM.Fluid.Interfaces.FluidPort_State port_b(redeclare package Medium =
+        Modelica.Media.Water.StandardWater)
+    annotation (Placement(transformation(extent={{-338,-146},{-318,-126}}),
+        iconTransformation(extent={{-338,-146},{-318,-126}})));
+  TRANSFORM.Fluid.Machines.SteamTurbine HPTurbine(redeclare package Medium =
+        Modelica.Media.Water.StandardWater,
+    p_a_start(displayUnit="MPa") = 3500000,
+    p_b_start(displayUnit="MPa") = 1000000,
+    use_T_start=false,
+    h_a_start=3e6,
+    m_flow_start=67,                        use_Stodola=false)
+    annotation (Placement(transformation(extent={{54,96},{74,116}})));
+  TRANSFORM.Fluid.Machines.SteamTurbine LPTurbine(redeclare package Medium =
+        Modelica.Media.Water.StandardWater,
+    p_a_start(displayUnit="MPa") = 1000000,
+    p_b_start(displayUnit="kPa") = 10000,
+    use_T_start=false,
+    h_a_start=2.7e6,
+    m_flow_start=(1 - 0.18)*67,             use_Stodola=false)
+    annotation (Placement(transformation(extent={{172,96},{192,116}})));
+  TRANSFORM.Fluid.Machines.Pump_SimpleMassFlow Cond_Pump(redeclare package
+      Medium = Modelica.Media.Water.StandardWater, m_flow_nominal=(1 - 0.18)*67)
+    annotation (Placement(transformation(extent={{176,-174},{156,-154}})));
+  TRANSFORM.Fluid.Volumes.IdealCondenser condenser(redeclare package Medium =
+        Modelica.Media.Water.StandardWater, p(displayUnit="kPa") = 10000)
+    annotation (Placement(transformation(extent={{196,-146},{216,-126}})));
+  Modelica.Fluid.Fittings.TeeJunctionVolume teeJunctionVolume(redeclare package
+      Medium = Modelica.Media.Water.StandardWater,
+    p_start(displayUnit="MPa") = 1000000,
+    use_T_start=false,
+    h_start=2.7e6,
+    V=1)
+    annotation (Placement(transformation(extent={{128,122},{108,102}})));
+  TRANSFORM.Fluid.FittingsAndResistances.NominalLoss Bleed(redeclare package
+      Medium = Modelica.Media.Water.StandardWater,
+    dp_nominal(displayUnit="Pa") = 1e4,
+    m_flow_nominal=0.18*67,
+    p_nominal(displayUnit="Pa") = 1e6,
+    T_nominal=726.15)                              annotation (Placement(
+        transformation(
+        extent={{10,10},{-10,-10}},
+        rotation=90,
+        origin={118,42})));
+  TRANSFORM.Fluid.Volumes.MixingVolume OFWH(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    p_start(displayUnit="MPa") = 1000000,
+    use_T_start=false,
+    h_start=data.h_steam_cold,
+    redeclare model Geometry =
+        TRANSFORM.Fluid.ClosureRelations.Geometry.Models.LumpedVolume.GenericVolume
+        (V=1),
+    nPorts_b=2,
+    nPorts_a=1)
+    annotation (Placement(transformation(extent={{80,-174},{100,-154}})));
+  TRANSFORM.Electrical.PowerConverters.Generator generator
+    annotation (Placement(transformation(extent={{210,96},{230,116}})));
+  TRANSFORM.Electrical.Sources.FrequencySource
+                            boundary
+    annotation (Placement(transformation(extent={{320,96},{300,116}})));
+  TRANSFORM.Electrical.Sensors.PowerSensor sensorW
+    annotation (Placement(transformation(extent={{254,96},{274,116}})));
+  NHES.Systems.PrimaryHeatSystem.SMR_Generic.Components.Data.Data_GenericModule
+                                     data(length_steamGenerator_tube=36)
+    annotation (Placement(transformation(extent={{198,120},{214,136}})));
+  TRANSFORM.Fluid.Machines.Pump_SimpleMassFlow Cond_Pump1(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    use_input=true,
+    m_flow_nominal=67)
+    annotation (Placement(transformation(extent={{70,-174},{50,-154}})));
+  Modelica.Blocks.Interfaces.RealInput FW_Pump annotation (Placement(
+        transformation(extent={{104,-150},{74,-120}}),iconTransformation(extent={{-15,-15},
+            {15,15}},
+        rotation=90,
+        origin={115,-105})));
+  Modelica.Fluid.Sensors.MassFlowRate massFlowRate_fwp(redeclare package Medium
+      = Modelica.Media.Water.StandardWater, allowFlowReversal=false)
+    annotation (Placement(transformation(extent={{-120,-174},{-140,-154}})));
+  Modelica.Fluid.Sensors.MassFlowRate massFlowRate_steam(redeclare package
+      Medium = Modelica.Media.Water.StandardWater, allowFlowReversal=false)
+    annotation (Placement(transformation(extent={{16,30},{36,50}})));
+  Modelica.Fluid.Sensors.Pressure pressure_Tvalve(redeclare package Medium =
+        Modelica.Media.Water.StandardWater)
+    annotation (Placement(transformation(extent={{-10,40},{10,60}})));
+  TRANSFORM.Fluid.Volumes.SimpleVolume volume(redeclare package Medium =
+        Modelica.Media.Water.StandardWater)
+    annotation (Placement(transformation(extent={{-318,30},{-298,50}})));
+  Modelica.Blocks.Interfaces.RealInput T_valve1 annotation (Placement(
+        transformation(extent={{-322,152},{-302,172}}), iconTransformation(
+          extent={{14,-14},{-14,14}},
+        rotation=90,
+        origin={-278,120})));
+  TRANSFORM.Fluid.Valves.ValveCompressible TCV1(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    dp_start=100000,
+    dp_nominal=100000,
+    m_flow_nominal=67,
+    p_nominal=2768700)
+    annotation (Placement(transformation(extent={{-224,150},{-204,130}})));
+  TRANSFORM.Fluid.Valves.ValveCompressible TCV2(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    dp_nominal=100000,
+    m_flow_nominal=67,
+    p_nominal=2768700)
+    annotation (Placement(transformation(extent={{-226,30},{-206,50}})));
+  TRANSFORM.Fluid.Valves.ValveCompressible TCV3(
+    redeclare package Medium = Modelica.Media.Water.StandardWater,
+    dp_nominal=100000,
+    m_flow_nominal=67,
+    p_nominal=2768700)
+    annotation (Placement(transformation(extent={{-218,-90},{-198,-70}})));
+  Modelica.Blocks.Sources.RealExpression Sensor_W(y=sensorW.y)
+    annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+        rotation=-90,
+        origin={320,-56})));
+  Modelica.Blocks.Interfaces.RealOutput W_Sensor
+    annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+        rotation=-90,
+        origin={320,-102}),
+        iconTransformation(
+        extent={{-10,-10},{10,10}},
+        rotation=-90,
+        origin={-166,-110})));
+  Modelica.Fluid.Sensors.MassFlowRate TCV3_mdot(redeclare package Medium =
+        Modelica.Media.Water.StandardWater, allowFlowReversal=false)
+    annotation (Placement(transformation(extent={{-40,-48},{-26,-34}})));
+  Modelica.Fluid.Sensors.MassFlowRate TCV2_mdot(redeclare package Medium =
+        Modelica.Media.Water.StandardWater, allowFlowReversal=false)
+    annotation (Placement(transformation(extent={{-68,32},{-52,48}})));
+  TRANSFORM.Fluid.Volumes.SimpleVolume pre_leak_vol_1(redeclare package Medium
+      = Modelica.Media.Water.StandardWater, showName=false)
+    annotation (Placement(transformation(extent={{-200,130},{-180,150}})));
+  Modelica.Fluid.Sensors.MassFlowRate TCV1_mdot(redeclare package Medium =
+        Modelica.Media.Water.StandardWater, allowFlowReversal=false)
+    annotation (Placement(transformation(extent={{-52,118},{-38,132}})));
+equation
+  connect(LPTurbine.shaft_a, HPTurbine.shaft_b)
+    annotation (Line(points={{172,106},{74,106}},
+                                                color={0,0,0}));
+  connect(LPTurbine.shaft_b, generator.shaft)
+    annotation (Line(points={{192,106},{210,106}},
+                                               color={0,0,0}));
+  connect(generator.port, sensorW.port_a)
+    annotation (Line(points={{230,106},{254,106}},
+                                                 color={255,0,0}));
+  connect(sensorW.port_b, boundary.port)
+    annotation (Line(points={{274,106},{300,106}},
+                                                 color={255,0,0}));
+  connect(HPTurbine.portLP, teeJunctionVolume.port_2)
+    annotation (Line(points={{74,112},{108,112}},
+                                                color={0,127,255}));
+  connect(teeJunctionVolume.port_1, LPTurbine.portHP)
+    annotation (Line(points={{128,112},{172,112}},
+                                               color={0,127,255}));
+  connect(LPTurbine.portLP, condenser.port_a)
+    annotation (Line(points={{192,112},{198,112},{198,-90},{200,-90},{200,-88},
+          {199,-88},{199,-129}},                        color={0,127,255}));
+  connect(condenser.port_b, Cond_Pump.port_a) annotation (Line(points={{206,
+          -144},{206,-164},{176,-164}},color={0,127,255}));
+  connect(Cond_Pump.port_b, OFWH.port_b[1]) annotation (Line(points={{156,-164},
+          {126,-164},{126,-164.5},{96,-164.5}},
+                                             color={0,127,255}));
+  connect(teeJunctionVolume.port_3, Bleed.port_a) annotation (Line(points={{118,102},
+          {118,49}},                   color={0,127,255}));
+  connect(Bleed.port_b, OFWH.port_b[2]) annotation (Line(points={{118,35},{118,
+          -163.5},{96,-163.5}},    color={0,127,255}));
+  connect(Cond_Pump1.port_a, OFWH.port_a[1])
+    annotation (Line(points={{70,-164},{84,-164}}, color={0,127,255}));
+  connect(FW_Pump, Cond_Pump1.in_m_flow) annotation (Line(points={{89,-135},{
+          74.5,-135},{74.5,-156.7},{60,-156.7}}, color={0,0,127}));
+  connect(Cond_Pump1.port_b, massFlowRate_fwp.port_a) annotation (Line(points={{50,-164},
+          {-120,-164}},                              color={0,127,255}));
+  connect(massFlowRate_fwp.port_b, port_b) annotation (Line(points={{-140,-164},
+          {-314,-164},{-314,-136},{-328,-136}},
+                                             color={0,127,255}));
+  connect(massFlowRate_steam.port_b, HPTurbine.portHP) annotation (Line(points={{36,40},
+          {44,40},{44,112},{54,112}},             color={0,127,255}));
+  connect(pressure_Tvalve.port, massFlowRate_steam.port_a)
+    annotation (Line(points={{0,40},{16,40}},      color={0,127,255}));
+  connect(port_a, volume.port_a)
+    annotation (Line(points={{-326,40},{-314,40}}, color={0,127,255}));
+  connect(TCV2.port_a, volume.port_b)
+    annotation (Line(points={{-226,40},{-302,40}}, color={0,127,255}));
+  connect(volume.port_b, TCV3.port_a) annotation (Line(points={{-302,40},{-260,
+          40},{-260,-80},{-218,-80}},
+                                    color={0,127,255}));
+  connect(Sensor_W.y, W_Sensor)
+    annotation (Line(points={{320,-67},{320,-102}}, color={0,0,127}));
+  connect(TCV3_mdot.port_b, pressure_Tvalve.port) annotation (Line(points={{-26,-41},
+          {-26,-40},{-20,-40},{-20,40},{0,40}},
+                                         color={0,127,255}));
+  connect(TCV2_mdot.port_b, pressure_Tvalve.port)
+    annotation (Line(points={{-52,40},{0,40}}, color={0,127,255}));
+  connect(TCV1_mdot.port_b, pressure_Tvalve.port) annotation (Line(points={{-38,
+          125},{-20,125},{-20,40},{0,40}}, color={0,127,255}));
+  connect(pre_leak_vol_1.port_a, TCV1.port_b)
+    annotation (Line(points={{-196,140},{-204,140}}, color={0,127,255}));
+  connect(TCV2.port_b, TCV2_mdot.port_a)
+    annotation (Line(points={{-206,40},{-68,40}}, color={0,127,255}));
+  connect(pre_leak_vol_1.port_b, TCV1_mdot.port_a) annotation (Line(points={{
+          -184,140},{-58,140},{-58,125},{-52,125}}, color={0,127,255}));
+  connect(TCV2.opening, T_valve1) annotation (Line(points={{-216,48},{-216,92},
+          {-262,92},{-262,162},{-312,162}}, color={0,0,127}));
+  connect(TCV1.opening, T_valve1) annotation (Line(points={{-214,132},{-214,124},
+          {-252,124},{-252,162},{-312,162}}, color={0,0,127}));
+  connect(TCV1.port_a, volume.port_b) annotation (Line(points={{-224,140},{-288,
+          140},{-288,40},{-302,40}}, color={0,127,255}));
+  connect(TCV3.port_b, TCV3_mdot.port_a) annotation (Line(points={{-198,-80},{
+          -40,-80},{-40,-41}}, color={0,127,255}));
+  connect(TCV3.opening, T_valve1) annotation (Line(points={{-208,-72},{-208,-64},
+          {-344,-64},{-344,162},{-312,162}}, color={0,0,127}));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-340,
+            -180},{340,180}}), graphics={Bitmap(extent={{-344,-116},{202,164}},
+            fileName="modelica://NEUP/../../BOP.png")}),         Diagram(
+        coordinateSystem(preserveAspectRatio=false, extent={{-340,-180},{340,
+            180}})));
+end BOP_FMU_try2;

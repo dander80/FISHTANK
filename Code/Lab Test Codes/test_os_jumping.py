@@ -4,10 +4,10 @@ import os
 current_directory = os.getcwd()
 print("1 Current directory:", os.getcwd())
 
-# # Go two steps back
-# for _ in range(1):
-#     current_directory = os.path.dirname(current_directory)
-#     print(current_directory)
+# Go two steps back
+for _ in range(2):
+    current_directory = os.path.dirname(current_directory)
+    print(current_directory)
 
 # Navigate to "models/FMUs"
 new_directory = os.path.join(current_directory, "Models", "FMUs")

@@ -2,6 +2,10 @@ print('This code is running a FMU model of the FISHTANK System')
 print('Valve positions are inputted to the FMU, the resulting')
 print('tank levels and mass flow rates are returned and plotted')
 
+from __future__ import division, print_function, unicode_literals, absolute_import
+import os
+from fmpy import simulate_fmu, read_model_description, extract, dump, instantiate_fmu, read_csv, write_csv
+import fmpy
 import functions as FISH
 import matplotlib.pyplot as plt
 import numpy as np

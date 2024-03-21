@@ -572,10 +572,10 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           rotation=90)));
     Modelica.Blocks.Sources.Constant tank1_reduction(k=0.45)
       annotation (Placement(transformation(extent={{-192,-162},{-172,-142}})));
-    Modelica.Blocks.Interfaces.RealInput cv1_pos annotation (Placement(
+    Modelica.Blocks.Interfaces.RealInput cv1_sp annotation (Placement(
           transformation(extent={{-138,124},{-118,144}}), iconTransformation(
             extent={{-140,70},{-120,90}})));
-    Modelica.Blocks.Interfaces.RealInput cv2_pos annotation (Placement(
+    Modelica.Blocks.Interfaces.RealInput cv2_sp annotation (Placement(
           transformation(extent={{52,136},{72,156}}), iconTransformation(extent
             ={{140,70},{120,90}})));
     Modelica.Blocks.Interfaces.RealOutput mdot_pump annotation (Placement(
@@ -615,7 +615,7 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           origin={-30,120},
           extent={{10,-10},{-10,10}},
           rotation=0)));
-    Modelica.Blocks.Interfaces.RealInput res_pos annotation (Placement(
+    Modelica.Blocks.Interfaces.RealInput res_sp annotation (Placement(
           transformation(extent={{-68,148},{-48,168}}), iconTransformation(
           extent={{-10,-10},{10,10}},
           rotation=-90,
@@ -625,7 +625,7 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           extent={{4,-10},{-4,10}},
           rotation=90,
           origin={132,76})));
-    TRANSFORM.Fluid.Valves.ValveIncompressible Res_Valve1(
+    TRANSFORM.Fluid.Valves.ValveIncompressible Leak_Valve(
       redeclare package Medium =
           Modelica.Media.Water.ConstantPropertyLiquidWater,
       m_flow_start=sump_pump.m_flow_nominal/2,
@@ -636,11 +636,63 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           origin={74,38},
           extent={{10,10},{-10,-10}},
           rotation=90)));
-    Modelica.Blocks.Interfaces.RealInput lead_pos annotation (Placement(
+    Modelica.Blocks.Interfaces.RealInput leak_sp annotation (Placement(
           transformation(extent={{202,28},{182,48}}), iconTransformation(
           extent={{-10,-10},{10,10}},
           rotation=180,
           origin={188,24})));
+    Modelica.Blocks.Sources.RealExpression cv1_opening(y=CV1.opening)
+      annotation (Placement(transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={-60,230})));
+    Modelica.Blocks.Interfaces.RealOutput cv1_m annotation (Placement(
+          transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={-60,276}), iconTransformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={-112,192})));
+    Modelica.Blocks.Sources.RealExpression cv2_opening(y=CV2.opening)
+      annotation (Placement(transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={-20,230})));
+    Modelica.Blocks.Interfaces.RealOutput cv2_m annotation (Placement(
+          transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={-20,276}), iconTransformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={-34,190})));
+    Modelica.Blocks.Sources.RealExpression res_opening(y=Res_Valve.opening)
+      annotation (Placement(transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={20,230})));
+    Modelica.Blocks.Interfaces.RealOutput res_m annotation (Placement(
+          transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={20,276}), iconTransformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={66,192})));
+    Modelica.Blocks.Sources.RealExpression leak_opening(y=Leak_Valve.opening)
+      annotation (Placement(transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={60,230})));
+    Modelica.Blocks.Interfaces.RealOutput leak_m annotation (Placement(
+          transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={60,276}), iconTransformation(
+          extent={{10,-10},{-10,10}},
+          rotation=-90,
+          origin={144,192})));
   equation
     connect(tank1.ports[1],pipe_t1_to_res. port_a) annotation (Line(points={{
             -135.333,-62},{-136,-62},{-136,-106}},
@@ -684,10 +736,10 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
             {-160,-62},{-124.667,-62}},                 color={0,127,255}));
     connect(sensor_m_flow2.port_b,tank2. ports[3]) annotation (Line(points={{132,-6},
             {114,-6},{114,-62},{115.333,-62}},       color={0,127,255}));
-    connect(cv1_pos, CV1.opening) annotation (Line(points={{-128,134},{-110,134},
+    connect(cv1_sp, CV1.opening) annotation (Line(points={{-128,134},{-110,134},
             {-110,136},{-94,136},{-94,128}}, color={0,0,127}));
-    connect(cv2_pos, CV2.opening) annotation (Line(points={{62,146},{86,146},{
-            86,128},{70,128}}, color={0,0,127}));
+    connect(cv2_sp, CV2.opening) annotation (Line(points={{62,146},{86,146},{86,
+            128},{70,128}}, color={0,0,127}));
     connect(sensor_mdot_pump.m_flow,mdot_pump)
       annotation (Line(points={{6.4,-40},{-2,-40}},
                                                   color={0,0,127}));
@@ -724,19 +776,35 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       annotation (Line(points={{-54,120},{-40,120}}, color={0,127,255}));
     connect(Res_Valve.port_a, Tee.ports_b[2]) annotation (Line(points={{-20,120},
             {6,120},{6,126},{18,126},{18,120}}, color={0,127,255}));
-    connect(res_pos, Res_Valve.opening) annotation (Line(points={{-58,158},{-58,
+    connect(res_sp, Res_Valve.opening) annotation (Line(points={{-58,158},{-58,
             136},{-30,136},{-30,128}}, color={0,0,127}));
     connect(pipe_CV1_to_t2.port_b, Tee1.port_a)
       annotation (Line(points={{132,88},{132,80}}, color={0,127,255}));
-    connect(Res_Valve1.port_b, res_tank.ports[4]) annotation (Line(points={{74,
+    connect(Leak_Valve.port_b, res_tank.ports[4]) annotation (Line(points={{74,
             28},{74,-172},{-6,-172},{-6,-174},{-24,-174},{-24,-170},{-24,-170}},
           color={0,127,255}));
-    connect(Res_Valve1.port_a, Tee1.ports_b[1]) annotation (Line(points={{74,48},
+    connect(Leak_Valve.port_a, Tee1.ports_b[1]) annotation (Line(points={{74,48},
             {74,64},{130,64},{130,72},{130,72}}, color={0,127,255}));
     connect(sensor_m_flow2.port_a, Tee1.ports_b[2]) annotation (Line(points={{
             132,14},{132,44},{132,72},{134,72}}, color={0,127,255}));
-    connect(lead_pos, Res_Valve1.opening)
+    connect(leak_sp, Leak_Valve.opening)
       annotation (Line(points={{192,38},{82,38}}, color={0,0,127}));
+    connect(cv1_m, cv1_m)
+      annotation (Line(points={{-60,276},{-60,276}}, color={0,0,127}));
+    connect(cv1_opening.y, cv1_m)
+      annotation (Line(points={{-60,241},{-60,276}}, color={0,0,127}));
+    connect(cv2_m, cv2_m)
+      annotation (Line(points={{-20,276},{-20,276}}, color={0,0,127}));
+    connect(cv2_opening.y, cv2_m)
+      annotation (Line(points={{-20,241},{-20,276}}, color={0,0,127}));
+    connect(res_m, res_m)
+      annotation (Line(points={{20,276},{20,276}}, color={0,0,127}));
+    connect(res_opening.y, res_m)
+      annotation (Line(points={{20,241},{20,276}}, color={0,0,127}));
+    connect(leak_m, leak_m)
+      annotation (Line(points={{60,276},{60,276}}, color={0,0,127}));
+    connect(leak_opening.y, leak_m)
+      annotation (Line(points={{60,241},{60,276}}, color={0,0,127}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-200,
               -180},{200,180}})), Diagram(coordinateSystem(preserveAspectRatio=
               false, extent={{-200,-180},{200,180}})));
@@ -786,13 +854,13 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       annotation (Line(points={{123,16},{72,16}}, color={0,0,127}));
     connect(tank1_Setpoint.y, PID1.u_s)
       annotation (Line(points={{-113,16},{-80,16}}, color={0,0,127}));
-    connect(PID2.y, fishtank.cv2_pos) annotation (Line(points={{49,16},{40,16},
-            {40,8.88889},{18.2,8.88889}}, color={0,0,127}));
-    connect(PID1.y, fishtank.cv1_pos) annotation (Line(points={{-57,16},{-34,16},
+    connect(PID2.y, fishtank.cv2_sp) annotation (Line(points={{49,16},{40,16},{
+            40,8.88889},{18.2,8.88889}}, color={0,0,127}));
+    connect(PID1.y, fishtank.cv1_sp) annotation (Line(points={{-57,16},{-34,16},
             {-34,8.88889},{-18.2,8.88889}}, color={0,0,127}));
-    connect(Res_Setpoint.y, fishtank.res_pos) annotation (Line(points={{-23.5,
-            51},{-8.68,51},{-8.68,12.4444}}, color={0,0,127}));
-    connect(fishtank.lead_pos, Leak_Setpoint.y) annotation (Line(points={{26.32,
+    connect(Res_Setpoint.y, fishtank.res_sp) annotation (Line(points={{-23.5,51},
+            {-8.68,51},{-8.68,12.4444}}, color={0,0,127}));
+    connect(fishtank.leak_sp, Leak_Setpoint.y) annotation (Line(points={{26.32,
             2.66667},{38,2.66667},{38,-25},{45.5,-25}}, color={0,0,127}));
     annotation (
       Diagram(coordinateSystem(extent={{-160,-60},{160,60}})),

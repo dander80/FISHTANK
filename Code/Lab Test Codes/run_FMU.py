@@ -1,12 +1,4 @@
 #%% PACKAGES + NOTES
-print('This code is running a FMU model of the FISHTANK System')
-print('Valve positions are inputted to the FMU, the resulting')
-print('tank levels and mass flow rates are returned and plotted\n')
-
-print("model exchange --> use FMpy as the solver ")
-print('co-simulation --> use Dymola solver\n')
-
-
 from __future__ import division, print_function, unicode_literals, absolute_import
 import os
 from fmpy import simulate_fmu, read_model_description, extract, dump, instantiate_fmu, read_csv, write_csv
@@ -23,6 +15,13 @@ import random
 # import Jetson.GPIO as GPIO
 # from ads1015 import ADS1015
 
+
+print('This code is running a FMU model of the FISHTANK System')
+print('Valve positions are inputted to the FMU, the resulting')
+print('tank levels and mass flow rates are returned and plotted\n')
+
+print("model exchange --> use FMpy as the solver ")
+print('co-simulation --> use Dymola solver\n')
 print("Packages loaded in successfully\n")
 #%% FUNCTIONS
 def update_plot(data): 
@@ -93,7 +92,7 @@ def update_plot(data):
     axs2.set_title('Left Tank Height')
     axs2.set_ylabel('% Full')
     axs2.legend(loc='upper left')
-    axs2.set_ylim(-5, 105)
+    # axs2.set_ylim(-5, 105)
 
     axs3.clear()
     axs3.plot(t_array, tank_2_setpoint, label='Set Point', color=LadyVolsBlue)
@@ -101,7 +100,7 @@ def update_plot(data):
     axs3.set_title('Right Tank Height')
     axs3.set_ylabel('% Full')
     axs3.legend(loc='upper left')
-    axs3.set_ylim(-5, 105)
+    # axs3.set_ylim(-5, 105)
 
     axs4.clear()
     axs4.plot(t_array, cv1_setpoint, label='Set Point', color=LadyVolsBlue)
@@ -162,25 +161,7 @@ def step_finished(time, recorder):
     """ Callback function that is called after every step """
     return time < pause_time
 
-# def runFMU(inputs, fmu_state, start_time):
-#     """ Run fmu every time step """
-#     results = simulate_fmu(filename=settings['filename'],
-#                            start_time=start_time,
-#                            stop_time=start_time+step_time,
-#                            solver='Euler',
-#                            output_interval=step_time,
-#                            input = get_FMU_inputs(),
-#                            output=settings['outputs'],
-#                            fmu_instance=fmu_instance,
-#                            fmu_state=fmu_state,
-#                            terminate=False,
-#                            step_finished=step_finished,
-#                            debug_logging=False)
-#     # retrieve the FMU state
-#     fmu_state = fmu_instance.getFMUState()
-#     return results, fmu_state
-
-def runFMU(start_time, step_time, fmu_instance, fmu_state):
+def runFMU(start_time, fmu_instance, fmu_state):
     """ Run FMU for a single time step """
     # Run simulation for the current time step
     results = simulate_fmu(filename=settings['filename'],
@@ -202,26 +183,41 @@ def runFMU(start_time, step_time, fmu_instance, fmu_state):
     return results, fmu_state
 
 def get_FMU_inputs():
-    dtype = [('cv1_sp', np.double), ('cv2_sp', np.double), ('res_sp', np.double), ('leak_sp', np.double)]
-
-    inputs = np.array((data['cv1']['sp'][-1], data['cv2']['sp'][-1], data['res']['sp'][-1], data['leak']['sp'][-1]), dtype=dtype)
-
+    # Call this function to get the most up to date valve setpoints
+    # dtype is to satisfy the FMU reader
+    # Inputs are in the following order:
     # ['cv1_sp', 'cv2_sp', 'res_sp', 'leak_sp']
+    dtype = [('cv1_sp', np.double), ('cv2_sp', np.double), ('res_sp', np.double), ('leak_sp', np.double)]
+    inputs = np.array((data['cv1']['sp'][-1], data['cv2']['sp'][-1], data['res']['sp'][-1], data['leak']['sp'][-1]), dtype=dtype)
     return inputs
 
 def process_FMU_data(results):
-    #  ['mdot_pump', 'mdot_t1', 'mdot_t2', 't1_level', 't2_level', 'cv1_m', 'cv2_m', 'res_m', 'leak_m']
+    # Process the 9 output variables into their respective dictionaries 
+    # Order + names of ouputs: ['mdot_pump', 'mdot_t1', 'mdot_t2', ...
+    # 't1_level', 't2_level', 'cv1_m', 'cv2_m', 'res_m', 'leak_m']
     data['tank1']['mdot'].append(results['mdot_t1'][-1])
     data['tank2']['mdot'].append(results['mdot_t2'][-1])
     data['pump']['mdot'].append(results['mdot_pump'][-1])
+
     data['tank1']['level']['m'].append(results['t1_level'][-1])
     data['tank2']['level']['m'].append(results['t2_level'][-1])
+
     data['cv1']['m'].append(results['cv1_m'][-1])
     data['cv2']['m'].append(results['cv2_m'][-1])
     data['res']['m'].append(results['res_m'][-1])
     data['leak']['m'].append(results['leak_m'][-1])
+
     data['time']['abs'].append(time.time())
     data['time']['rel'].append(time.time()-data['time']['abs'][0])
+
+def controller(t1_sp, t2_sp):
+    # in place of a real PID / MPC controller 
+    # input the desired setpoints for tank 1 and 2
+    # CV positions are returned
+    cv1_sp = 1
+    cv2_sp = 1
+    new_cv_sps = [cv1_sp, cv2_sp]
+    return new_cv_sps
 
 
 print("Functions Read \n")
@@ -284,27 +280,26 @@ if __name__ == "__main__":
     data['time']['rel'].append(0)
 
     data['cv1']['m'].append(0)
-    data['cv1']['sp'].append(0.5)
+    data['cv1']['sp'].append(1)
 
     data['cv2']['m'].append(0)
-    data['cv2']['sp'].append(0.5)
+    data['cv2']['sp'].append(1)
 
     data['res']['m'].append(0) 
-    data['res']['sp'].append(0.5)
+    data['res']['sp'].append(1)
 
     data['leak']['m'].append(0) 
-    data['leak']['sp'].append(0.5)
+    data['leak']['sp'].append(0)
 
     data['tank1']['level']['m'].append(0) 
     data['tank1']['level']['sp'].append(0) 
-    data['tank1']['mdot'].append(np.random.normal(0.3, 0.01, 1)) 
+    data['tank1']['mdot'].append(0) 
 
     data['tank2']['level']['m'].append(0) 
     data['tank2']['level']['sp'].append(0) 
-    data['tank2']['mdot'].append(np.random.normal(0.3, 0.01, 1)) 
+    data['tank2']['mdot'].append(0) 
 
-    data['pump']['mdot'].append(np.random.normal(0.6, 0.02, 1)) 
-
+    data['pump']['mdot'].append(0) 
 
     fig = plt.figure(figsize=(18, 15))
     gs = GridSpec(6, 2, figure=fig)
@@ -389,17 +384,6 @@ if __name__ == "__main__":
                 'outputs':fmuOutputs
                 }
 
-    # Run the FMU for an initial time until pause time
-    # results = simulate_fmu(filename=settings['filename'],
-    #                         start_time=settings['start_time'],
-    #                         output_interval=settings['output_interval'],
-    #                         input=get_FMU_inputs(),
-    #                         output=settings['outputs'],
-    #                         fmu_instance=fmu_instance,
-    #                         terminate=False,
-    #                         step_finished=step_finished,
-    #                         debug_logging=False)
-
     results = simulate_fmu(filename=settings['filename'],
                         start_time=settings['start_time'],
                         output_interval=settings['output_interval'],
@@ -412,8 +396,8 @@ if __name__ == "__main__":
                         debug_logging=False)
                             
     # Log the results of the FMU for the initial run 
-    process_FMU_data(results)
-    print('initial results:\n', results)
+    # process_FMU_data(results)
+    # print('initial results:\n', results)
 
     # retrieve the FMU state
     fmu_state = fmu_instance.getFMUState()
@@ -429,27 +413,25 @@ if __name__ == "__main__":
         i = 0
         last_update_time = 0
         while True:
-
             # every 20 seconds, caluclate a new setpoint for the two control valves
             if data['time']['rel'][-1] - last_update_time >= 30:
                 # calculate new random variables
-                CV_1_setpoint = random.randint(0.10, 0.60)
-                CV_2_setpoint = random.randint(0.10, 0.60)
+                CV_1_setpoint = random.randint(5, 95) / 100
+                CV_2_setpoint = random.randint(5, 95) / 100
                 # Update the last update time
                 last_update_time = data['time']['rel'][-1]
-                
+            
+            # Add current valve setpoints to the data set
             data['cv1']['sp'].append(CV_1_setpoint)
             data['cv2']['sp'].append(CV_2_setpoint)
             data['res']['sp'].append(resistance_setpoint)
             data['leak']['sp'].append(leak_setpoint)
 
-            
+            # Add A JUNK zero sp for both tanks
+            data['tank1']['level']['sp'].append(0) 
+            data['tank2']['level']['sp'].append(0) 
 
-            print("Going into primary loop\n")
-
-
-
-
+            # Grab most recent valve positions from the data set, auto-formatted for running FMU
             inputs = get_FMU_inputs()
             print("inputs:\n", inputs, "\n")
 
@@ -460,23 +442,22 @@ if __name__ == "__main__":
             pause_time = start_time + step_time 
 
             # run FMU
-            # resultsApp, fmu_state = runFMU(inputs, fmu_state, start_time)
-            results, fmu_state = runFMU(start_time, step_time, fmu_instance, fmu_state)
+            results, fmu_state = runFMU(start_time, fmu_instance, fmu_state)
 
             process_FMU_data(results)
 
-            print('Start time = ', start_time, "input = ", get_FMU_inputs(), "results = ", results)
+            print('Start time = ', start_time, "results = ", results)
 
             start_time += step_time
 
             update_plot(data) 
-            time.sleep(.1)
+            time.sleep(.01)
             i += 1
 
     except KeyboardInterrupt:
         # Clean up
-        terminate_fmu(fmu_instance, fmu_state)
-        GPIO.cleanup()
+
+        # GPIO.cleanup()
 
         print("\n*********\ngame over\n*********\n")
 

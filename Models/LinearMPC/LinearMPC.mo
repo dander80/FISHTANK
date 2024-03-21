@@ -2240,7 +2240,7 @@ Example:
                     q := q + A^(r-1)*B;
                    end for;
                   mat_H5[((j-1)*n+1):(j*n),((i-1)*m+1):(i*m)] := q; // here it has to start at [1,:],
-		                                  // XXX needs change since it works for Nl = 1 too
+                                    // XXX needs change since it works for Nl = 1 too
               else
                 mat_H5[((j-1)*n+1):(j*n),((i-1)*m+1):(i*m)] := zeros(n, m);
               end if;
@@ -2763,7 +2763,7 @@ Example:
 
   initial equation
     pre_r = zeros(p*(Np - Nl + 1));
-  
+
   equation
     when sample(0, Ts) then
       pre_r = pre(r);
@@ -3347,5 +3347,6 @@ Example:
       annotation (                           experiment(StopTime=100));
     end testMPCstatespace2_2;
   end Test;
-  annotation (uses(Modelica(version="3.2")), version="1");
+  annotation (uses(Modelica(version="4.0.0")),
+                                             version="2");
 end LinearMPC;

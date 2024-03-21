@@ -194,35 +194,34 @@ def runFMU(start_time, step_time, fmu_instance, fmu_state):
                            fmu_state=fmu_state,
                            terminate=False,
                            step_finished=step_finished,
-                           debug_logging=False)
+                           debug_logging=True)
     
     # Retrieve the FMU state after simulation
-    fmu_state = fmu_instance.getFMUState()
+    fmu_state = fmu_instance.getFMUState() 
     
     return results, fmu_state
 
 def get_FMU_inputs():
-    dtype = [('cv1_pos', np.double), ('cv2_pos', np.double), ('res_pos', np.double), ('lead_pos', np.double)]
-
-    # inputs = [data['cv1']['sp'][-1], data['cv2']['sp'][-1], data['res']['sp'][-1], data['leak']['sp'][-1]]
+    dtype = [('cv1_sp', np.double), ('cv2_sp', np.double), ('res_sp', np.double), ('leak_sp', np.double)]
 
     inputs = np.array((data['cv1']['sp'][-1], data['cv2']['sp'][-1], data['res']['sp'][-1], data['leak']['sp'][-1]), dtype=dtype)
 
-    # ['cv1_pos', 'cv2_pos', 'res_pos', 'lead_pos']
+    # ['cv1_sp', 'cv2_sp', 'res_sp', 'leak_sp']
     return inputs
 
 def process_FMU_data(results):
-    # ['mdot_pump', 'mdot_t1', 'mdot_t2', 't1_level', 't2_level']
-    mdot_t1 = results[0]
-    mdot_t2 = results[1]
-    mdot_pump = results[2]
-    t1_level = results[3]
-    t2_level = results[4]
-    data['tank1']['mdot'].append(mdot_t1)
-    data['tank2']['mdot'].append(mdot_t2)
-    data['pump']['mdot'].append(mdot_pump)
-    data['tank1']['level']['m'].append(t1_level) 
-    data['tank2']['level']['m'].append(t2_level) 
+    #  ['mdot_pump', 'mdot_t1', 'mdot_t2', 't1_level', 't2_level', 'cv1_m', 'cv2_m', 'res_m', 'leak_m']
+    data['tank1']['mdot'].append(results['mdot_t1'][-1])
+    data['tank2']['mdot'].append(results['mdot_t2'][-1])
+    data['pump']['mdot'].append(results['mdot_pump'][-1])
+    data['tank1']['level']['m'].append(results['t1_level'][-1])
+    data['tank2']['level']['m'].append(results['t2_level'][-1])
+    data['cv1']['m'].append(results['cv1_m'][-1])
+    data['cv2']['m'].append(results['cv2_m'][-1])
+    data['res']['m'].append(results['res_m'][-1])
+    data['leak']['m'].append(results['leak_m'][-1])
+    data['time']['abs'].append(time.time())
+    data['time']['rel'].append(time.time()-data['time']['abs'][0])
 
 
 print("Functions Read \n")
@@ -230,7 +229,7 @@ print("Functions Read \n")
 CV_1_setpoint = 1
 CV_2_setpoint = 1
 resistance_setpoint = 1
-leak_setpoint = 1
+leak_setpoint = 0
 
 data = {'time':     {'abs': [], 'rel': []},
         'cv1':      {'m': [], 'sp': []},
@@ -271,7 +270,7 @@ for file in files_in_current_directory:
 
 
 # define which FMU file you will be running
-fmu_path = new_directory + "\FISHTANK_w_degs.fmu" 
+fmu_path = new_directory + "\FISHTANK_w_degs_v2.fmu" 
 fmuInputs = [] 
 fmuOutputs = [] 
 
@@ -305,6 +304,41 @@ if __name__ == "__main__":
     data['tank2']['mdot'].append(np.random.normal(0.3, 0.01, 1)) 
 
     data['pump']['mdot'].append(np.random.normal(0.6, 0.02, 1)) 
+
+
+    fig = plt.figure(figsize=(18, 15))
+    gs = GridSpec(6, 2, figure=fig)
+
+    axs1 = fig.add_subplot(gs[:2, :])
+    axs1.set_title('Mass Flow Rates')
+    axs1.set_ylabel('kg/s')
+    # Plot 2: Left Tank Height
+    axs2 = fig.add_subplot(gs[2:4, 0])
+    axs2.set_title('Left Tank Height')
+    axs2.set_ylabel('% Full')
+    # Plot 3: Right Tank Height
+    axs3 = fig.add_subplot(gs[2:4, 1])
+    axs3.set_title('Right Tank Height')
+    axs3.set_ylabel('% Full')
+    # Plot 4: Left Control Valve
+    axs4 = fig.add_subplot(gs[4, 0])
+    axs4.set_title('Left Control Valve')
+    axs4.set_ylabel('% open')
+    # Plot 5: Right Control Valve
+    axs5 = fig.add_subplot(gs[4, 1])
+    axs5.set_title('Right Control Valve')
+    axs5.set_ylabel('% open')
+    # Plot 6: Actuator Degradation Valve Openness
+    axs6 = fig.add_subplot(gs[5, 0])
+    axs6.set_title('Actuator Degradation Valve Openness')
+    axs6.set_ylabel('% open')
+    # Plot 7: Leak Valve Openness
+    axs7 = fig.add_subplot(gs[5, 1])
+    axs7.set_title('Leak Valve Openness')
+    axs7.set_ylabel('% open')
+
+    plt.tight_layout(pad=2)
+    print('Plot Initialized \n')
 
     # get the FMU file name
     fmu_filename = fmu_path
@@ -342,7 +376,7 @@ if __name__ == "__main__":
     #############################
     # define runtime parameters #
     #############################
-    step_time  = 0.02           # time between FMU outputted data points (indiv. simulation lengths)
+    step_time  = 0.2           # time between FMU outputted data points (indiv. simulation lengths)
     start_time = 0              # Start time of the FMU in s
     stop_time  = 5000           # Stop time of the FMU in s
     pause_time = 1              # Initial pause time in s
@@ -380,56 +414,73 @@ if __name__ == "__main__":
     # Log the results of the FMU for the initial run 
     process_FMU_data(results)
     print('initial results:\n', results)
+
     # retrieve the FMU state
     fmu_state = fmu_instance.getFMUState()
     start_time = pause_time
+
+    # results = {}
+
     print("FMU ran for initial time, now starting primary loop.\n")
 
-    # While loop to run the FMU with a predefined timestep
-    while start_time <= stop_time - 2 * step_time:
-        print("Going into primary loop")
-        inputs = get_FMU_inputs()
-        print("inputs:\n", inputs)
-        # truncate start time to 2 decimals
-        start_time = round(start_time, 3)
-        # Advance the pause time
-        pause_time = start_time + step_time 
-        # run FMU
-        # resultsApp, fmu_state = runFMU(inputs, fmu_state, start_time)
 
-        results, fmu_state = runFMU(start_time, step_time, fmu_instance, fmu_state)
+    try:
+        print('Starting Loop \n')
+        i = 0
+        last_update_time = 0
+        while True:
 
+            # every 20 seconds, caluclate a new setpoint for the two control valves
+            if data['time']['rel'][-1] - last_update_time >= 30:
+                # calculate new random variables
+                CV_1_setpoint = random.randint(0.10, 0.60)
+                CV_2_setpoint = random.randint(0.10, 0.60)
+                # Update the last update time
+                last_update_time = data['time']['rel'][-1]
+                
+            data['cv1']['sp'].append(CV_1_setpoint)
+            data['cv2']['sp'].append(CV_2_setpoint)
+            data['res']['sp'].append(resistance_setpoint)
+            data['leak']['sp'].append(leak_setpoint)
 
-        # print("resultsApp shape = ", resultsApp) 
-        # resultsApp = resultsApp[0:]
-        # publish 
-        process_FMU_data(resultsApp[-1])
-        print('Start time = ', start_time, "input = ", get_FMU_inputs(), "results = ", resultsApp)
-        # # Append the results every time step
-        # resultSummary = np.concatenate((resultSummary, np.expand_dims(resultsApp[-1], axis=0)))
-        # Advance the start time
-        start_time += step_time
-        time.sleep(.1)
+            
+
+            print("Going into primary loop\n")
 
 
-    print("The FMU will terminate in 1 time step.")
-    results = simulate_fmu(filename=settings['filename'],
-                        start_time=round(start_time, 2),
-                        stop_time=settings['stop_time'],
-                        output_interval=step_time,
-                        input=get_FMU_inputs(),
-                        output=settings['outputs'],
-                        fmu_instance=fmu_instance,
-                        fmu_state=fmu_state,
-                        terminate=True,
-                        debug_logging=False)
 
-    # Log the results of the FMU for the final run 
-    process_FMU_data(results)
-    # process_data(topic_output, {'output_dollars':results['output_dollars'][-1], 'output_dollars_2':results['output_dollars_2'][-1]})
-    # resultSummary = np.concatenate((resultSummary, np.expand_dims(resultsApp[-1], axis=0)))
-    
-    # combine and output the results to a csv file
-    # write_csv(os.path.join(mypath, '..', 'output','fmu_results.csv'), resultSummary, columns=None)
-    print("Simulation finished")
+
+            inputs = get_FMU_inputs()
+            print("inputs:\n", inputs, "\n")
+
+
+            # truncate start time to 2 decimals
+            start_time = round(start_time, 3)
+            # Advance the pause time
+            pause_time = start_time + step_time 
+
+            # run FMU
+            # resultsApp, fmu_state = runFMU(inputs, fmu_state, start_time)
+            results, fmu_state = runFMU(start_time, step_time, fmu_instance, fmu_state)
+
+            process_FMU_data(results)
+
+            print('Start time = ', start_time, "input = ", get_FMU_inputs(), "results = ", results)
+
+            start_time += step_time
+
+            update_plot(data) 
+            time.sleep(.1)
+            i += 1
+
+    except KeyboardInterrupt:
+        # Clean up
+        terminate_fmu(fmu_instance, fmu_state)
+        GPIO.cleanup()
+
+        print("\n*********\ngame over\n*********\n")
+
+        plt.ioff()  # Turn off interactive mode
+        plt.show()
+        
 # %%

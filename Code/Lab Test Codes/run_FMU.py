@@ -33,6 +33,8 @@ def update_plot(data):
     SmokeyGray   = '#58595B'
     LadyVolsBlue = '#0CA4DC'
 
+    tank_max_height = 0.76 
+
     if data['time']['rel'][-1] > t_min:
         # time
         t_array = t_array[-t_min:]
@@ -42,40 +44,47 @@ def update_plot(data):
         mass_flow_right = data['tank2']['mdot'][-t_min:]
         mass_flow_center = data['pump']['mdot'][-t_min:]
         # tank 1
-        tank_1_setpoint = data['tank1']['level']['m'][-t_min:]
-        tank_1_measurement = data['tank1']['level']['m'][-t_min:]
+        tank_1_setpoint = [x * 100 / tank_max_height for x in data['tank1']['level']['sp'][-t_min:]]
+        tank_1_measurement = [x * 100 / tank_max_height for x in data['tank1']['level']['m'][-t_min:]]
         # tank 2
-        tank_2_setpoint = data['tank2']['level']['m'][-t_min:]
-        tank_2_measurement = data['tank2']['level']['m'][-t_min:]
+        tank_2_setpoint = [x * 100 / tank_max_height for x in data['tank2']['level']['sp'][-t_min:]]
+        tank_2_measurement = [x * 100 / tank_max_height for x in data['tank2']['level']['m'][-t_min:]]
         # cv 1
-        cv1_setpoint = data['cv1']['sp'][-t_min:]
-        cv1_measurement = data['cv1']['m'][-t_min:]
+        cv1_setpoint =  [x * 100 for x in data['cv1']['sp'][-t_min:]]
+        cv1_measurement = [x * 100 for x in data['cv1']['sp'][-t_min:]]
         # cv 2
-        cv2_setpoint = data['cv2']['sp'][-t_min:]
-        cv2_measurement = data['cv2']['m'][-t_min:]
+        cv2_setpoint = [x * 100 for x in data['cv2']['sp'][-t_min:]]
+        cv2_measurement = [x * 100 for x in data['cv2']['sp'][-t_min:]]
         # res
-        res_setpoint = data['res']['sp'][-t_min:]
-        res_measurement = data['res']['m'][-t_min:]
+        res_setpoint = [x * 100 for x in data['res']['sp'][-t_min:]]
+        res_measurement = [x * 100 for x in data['res']['sp'][-t_min:]]
         # leak
-        leak_setpoint = data['leak']['sp'][-t_min:]
-        leak_measurement = data['leak']['m'][-t_min:]
+        leak_setpoint = [x * 100 for x in data['leak']['sp'][-t_min:]]
+        leak_measurement = [x * 100 for x in data['leak']['sp'][-t_min:]]
 
     else: 
+        # mass flow rates
         mass_flow_left = data['tank1']['mdot']
         mass_flow_right = data['tank2']['mdot']
         mass_flow_center = data['pump']['mdot']
-        tank_1_setpoint = data['tank1']['level']['m']
-        tank_1_measurement = data['tank1']['level']['m']
-        tank_2_setpoint = data['tank2']['level']['m']
-        tank_2_measurement = data['tank2']['level']['m']
-        cv1_setpoint = data['cv1']['sp']
-        cv1_measurement = data['cv1']['m']
-        cv2_setpoint = data['cv2']['sp']
-        cv2_measurement = data['cv2']['m']
-        res_setpoint = data['res']['sp']
-        res_measurement = data['res']['m']
-        leak_setpoint = data['leak']['sp']
-        leak_measurement = data['leak']['m']
+        # tank 1
+        tank_1_setpoint = [x * 100 / tank_max_height for x in data['tank1']['level']['sp']]
+        tank_1_measurement = [x * 100 / tank_max_height for x in data['tank1']['level']['m']]
+        # tank 2
+        tank_2_setpoint = [x * 100 / tank_max_height for x in data['tank2']['level']['sp']]
+        tank_2_measurement = [x * 100 / tank_max_height for x in data['tank2']['level']['m']]
+        # cv 1
+        cv1_setpoint =  [x * 100 for x in data['cv1']['sp']]
+        cv1_measurement = [x * 100 for x in data['cv1']['sp']]
+        # cv 2
+        cv2_setpoint = [x * 100 for x in data['cv2']['sp']]
+        cv2_measurement = [x * 100 for x in data['cv2']['sp']]
+        # res
+        res_setpoint = [x * 100 for x in data['res']['sp']]
+        res_measurement = [x * 100 for x in data['res']['sp']]
+        # leak
+        leak_setpoint = [x * 100 for x in data['leak']['sp']]
+        leak_measurement = [x * 100 for x in data['leak']['sp']]
 
     # Update the plots
     axs1.clear()
@@ -92,7 +101,7 @@ def update_plot(data):
     axs2.set_title('Left Tank Height')
     axs2.set_ylabel('% Full')
     axs2.legend(loc='upper left')
-    # axs2.set_ylim(-5, 105)
+    axs2.set_ylim(-5, 105)
 
     axs3.clear()
     axs3.plot(t_array, tank_2_setpoint, label='Set Point', color=LadyVolsBlue)
@@ -100,7 +109,7 @@ def update_plot(data):
     axs3.set_title('Right Tank Height')
     axs3.set_ylabel('% Full')
     axs3.legend(loc='upper left')
-    # axs3.set_ylim(-5, 105)
+    axs3.set_ylim(-5, 105)
 
     axs4.clear()
     axs4.plot(t_array, cv1_setpoint, label='Set Point', color=LadyVolsBlue)
@@ -108,7 +117,7 @@ def update_plot(data):
     axs4.set_title('Control Valve #1 Position') 
     axs4.set_ylabel('% open') 
     axs4.legend(loc='upper left') 
-    # axs4.set_ylim(-5, 105)
+    axs4.set_ylim(-5, 105)
 
     axs5.clear()
     axs5.plot(t_array, cv2_setpoint, label='Set Point', color=LadyVolsBlue)
@@ -116,7 +125,7 @@ def update_plot(data):
     axs5.set_title('Control Valve #2 Position') 
     axs5.set_ylabel('% open') 
     axs5.legend(loc='upper left') 
-    # axs5.set_ylim(-5, 105)
+    axs5.set_ylim(-5, 105)
 
     # axs6.clear()
     # # axs6.plot(t_array, actuator_degradation_valve, color=SmokeyGray)
@@ -134,7 +143,7 @@ def update_plot(data):
     axs6.set_title('Resistance Degradation Valve Position') 
     axs6.set_ylabel('% open') 
     axs6.legend(loc='upper left') 
-    # axs6.set_ylim(-5, 105)
+    axs6.set_ylim(-5, 105)
 
     # axs7.clear()Plotting
     # if np.average(leak_valve) == 0:
@@ -151,7 +160,7 @@ def update_plot(data):
     axs7.set_title('Leak Valve Position') 
     axs7.set_ylabel('% open') 
     axs7.legend(loc='upper left') 
-    # axs7.set_ylim(-5, 105)
+    axs7.set_ylim(-5, 105)
 
     plt.tight_layout(pad=2)
     plt.draw()

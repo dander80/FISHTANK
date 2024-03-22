@@ -822,8 +822,8 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
   model FT_Deg_PID_Controls
 
     Modelica.Blocks.Sources.Ramp     tank2_Setpoint(
-      height=0,
-      duration=400,
+      height=-0.1,
+      duration=600,
       offset=0.45,
       startTime=300)
       annotation (Placement(transformation(extent={{144,6},{124,26}})));
@@ -858,21 +858,21 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       annotation (Placement(transformation(extent={{144,-26},{124,-6}})));
   equation
     connect(fishtank.t1_level, PID1.u_m) annotation (Line(points={{-13.8353,
-            10.8},{-13.8353,-2},{-68,-2},{-68,4}}, color={0,0,127}));
-    connect(fishtank.t2_level, PID2.u_m) annotation (Line(points={{19.2706,11},
-            {44,11},{44,-2},{60,-2},{60,4}}, color={0,0,127}));
+            11.2381},{-13.8353,-2},{-68,-2},{-68,4}}, color={0,0,127}));
+    connect(fishtank.t2_level, PID2.u_m) annotation (Line(points={{19.2706,
+            11.4286},{44,11.4286},{44,-2},{60,-2},{60,4}}, color={0,0,127}));
     connect(tank1_Setpoint.y, PID1.u_s)
       annotation (Line(points={{-113,16},{-80,16}}, color={0,0,127}));
     connect(PID2.y, fishtank.cv2_sp) annotation (Line(points={{49,16},{40,16},{
-            40,6},{10.7059,6}}, color={0,0,127}));
+            40,6.66667},{10.7059,6.66667}}, color={0,0,127}));
     connect(PID1.y, fishtank.cv1_sp) annotation (Line(points={{-57,16},{-34,16},
-            {-34,6},{-10.7059,6}}, color={0,0,127}));
+            {-34,6.66667},{-10.7059,6.66667}}, color={0,0,127}));
     connect(Res_Setpoint.y, fishtank.res_sp) annotation (Line(points={{-23.5,51},
-            {-5.10588,51},{-5.10588,9.2}}, color={0,0,127}));
+            {-5.10588,51},{-5.10588,9.71429}}, color={0,0,127}));
     connect(fishtank.leak_sp, Leak_Setpoint.y) annotation (Line(points={{
-            15.4824,0.4},{38,0.4},{38,-25},{45.5,-25}}, color={0,0,127}));
-    connect(PID2.u_s, tank1_Setpoint1.y) annotation (Line(points={{72,16},{116,
-            16},{116,-16},{123,-16}}, color={0,0,127}));
+            15.4824,1.33333},{38,1.33333},{38,-25},{45.5,-25}}, color={0,0,127}));
+    connect(tank2_Setpoint.y, PID2.u_s)
+      annotation (Line(points={{123,16},{72,16}}, color={0,0,127}));
     annotation (
       Diagram(coordinateSystem(extent={{-160,-60},{160,60}})),
       Icon(coordinateSystem(extent={{-160,-60},{160,60}})),
@@ -888,7 +888,7 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           Modelica.Media.Water.ConstantPropertyLiquidWater,
       nPorts=3,
       crossArea=0.1824,
-      level_start=0.15,
+      level_start=0,
       portsData={Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(diameter=
           0.038, height=0),Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(
           diameter=0.038, height=0.1),
@@ -928,7 +928,7 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           Modelica.Media.Water.ConstantPropertyLiquidWater,
       nPorts=3,
       crossArea=0.1824,
-      level_start=0.15,
+      level_start=0,
       portsData={Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(diameter=
           0.038, height=0),Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(
           diameter=0.038, height=0.1),
@@ -959,7 +959,7 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           Modelica.Media.Water.ConstantPropertyLiquidWater,
       m_flow_start=2,
       checkValve=true,
-      dp_nominal=300000,
+      dp_nominal=100000,
       m_flow_nominal=2)   annotation (Placement(visible=true, transformation(
           origin={0,-160},
           extent={{-10,-10},{10,10}},
@@ -1012,7 +1012,8 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       m_flow_start=sump_pump.m_flow_nominal/2,
       m_flow_small=1e-10,
       dp_nominal=20000,
-      m_flow_nominal=sump_pump.m_flow_nominal/2) annotation (Placement(visible=true,
+      m_flow_nominal=sump_pump.m_flow_nominal/2,
+      opening_nominal=1)                         annotation (Placement(visible=true,
           transformation(
           origin={-152,134},
           extent={{10,-10},{-10,10}},
@@ -1023,7 +1024,8 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       m_flow_start=sump_pump.m_flow_nominal/2,
       m_flow_small=1e-10,
       dp_nominal=20000,
-      m_flow_nominal=sump_pump.m_flow_nominal/2) annotation (Placement(visible=true,
+      m_flow_nominal=sump_pump.m_flow_nominal/2,
+      opening_nominal=1)                         annotation (Placement(visible=true,
           transformation(
           origin={102,134},
           extent={{10,10},{-10,-10}},
@@ -1206,9 +1208,6 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           origin={0,46},
           extent={{10,-10},{-10,10}},
           rotation=270)));
-    Modelica.Fluid.Fittings.TeeJunctionIdeal Tee(redeclare package Medium =
-          Modelica.Media.Water.ConstantPropertyLiquidWater)
-      annotation (Placement(transformation(extent={{-10,144},{10,124}})));
     Modelica.Fluid.Pipes.StaticPipe pipe_tee_to_res(
       redeclare package Medium =
           Modelica.Media.Water.ConstantPropertyLiquidWater,
@@ -1231,12 +1230,12 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       diameter=0.038,
       height_ab=0) annotation (Placement(transformation(extent={{-178,124},{
               -198,144}}, rotation=0)));
-    Modelica.Fluid.Fittings.TeeJunctionIdeal Tee_red(redeclare package Medium
-        = Modelica.Media.Water.ConstantPropertyLiquidWater) annotation (
-        Placement(transformation(
-          extent={{-10,-10},{10,10}},
+    Modelica.Fluid.Fittings.MultiPort Tee_red(redeclare package Medium =
+          Modelica.Media.Water.ConstantPropertyLiquidWater, nPorts_b=2)
+      annotation (Placement(transformation(
+          extent={{4,10},{-4,-10}},
           rotation=90,
-          origin={218,50})));
+          origin={218,54})));
     Modelica.Fluid.Pipes.StaticPipe pipe_cv2_to_elbow(
       redeclare package Medium =
           Modelica.Media.Water.ConstantPropertyLiquidWater,
@@ -1289,7 +1288,7 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           Modelica.Media.Water.ConstantPropertyLiquidWater,
       length=0.2,
       diameter=0.038/3,
-      height_ab=0) annotation (Placement(transformation(extent={{108,40},{88,60}},
+      height_ab=0) annotation (Placement(transformation(extent={{104,40},{84,60}},
             rotation=0)));
     Modelica.Fluid.Fittings.Bends.CurvedBend small_90(redeclare package Medium
         = Modelica.Media.Water.ConstantPropertyLiquidWater, geometry(
@@ -1317,6 +1316,11 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           origin={218,-24},
           extent={{-10,10},{10,-10}},
           rotation=270)));
+    Modelica.Fluid.Fittings.MultiPort Tee(nPorts_b=2) annotation (Placement(
+          transformation(
+          extent={{-4,-10},{4,10}},
+          rotation=90,
+          origin={0,130})));
   equation
     connect(tank1.ports[1],pipe_t1_to_res. port_a) annotation (Line(points={{
             -209.333,-78},{-210,-78},{-210,-122}},
@@ -1403,12 +1407,6 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       annotation (Line(points={{135,206},{124,206}}, color={0,0,127}));
     connect(sensor_mdot_pump.port_b, pipe_mdot_to_tee.port_a)
       annotation (Line(points={{0,-46},{0,36}}, color={0,127,255}));
-    connect(pipe_mdot_to_tee.port_b, Tee.port_3)
-      annotation (Line(points={{0,56},{0,124}}, color={0,127,255}));
-    connect(pipe_multi_to_t2.port_a, Tee.port_2)
-      annotation (Line(points={{40,134},{10,134}}, color={0,127,255}));
-    connect(Tee.port_1, pipe_tee_to_res.port_a)
-      annotation (Line(points={{-10,134},{-22,134}}, color={0,127,255}));
     connect(pipe_tee_to_res.port_b, Res_Valve.port_a)
       annotation (Line(points={{-42,134},{-52,134}}, color={0,127,255}));
     connect(pipe_elbow_to_mdot1.port_a, left_90.port_b)
@@ -1417,26 +1415,20 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       annotation (Line(points={{-162,134},{-178,134}}, color={0,127,255}));
     connect(pipe_cv1_to_elbow.port_b, left_90.port_a)
       annotation (Line(points={{-198,134},{-234,134}}, color={0,127,255}));
-    connect(pipe_elbow_to_tee.port_b, Tee_red.port_2)
-      annotation (Line(points={{218,68},{218,60}}, color={0,127,255}));
     connect(CV2.port_b, pipe_cv2_to_elbow.port_a)
       annotation (Line(points={{112,134},{148,134}}, color={0,127,255}));
     connect(pipe_elbow_to_tee.port_a, right_90.port_b)
       annotation (Line(points={{218,88},{218,108}}, color={0,127,255}));
     connect(pipe_cv2_to_elbow.port_b, right_90.port_a) annotation (Line(points=
             {{168,134},{218,134},{218,128}}, color={0,127,255}));
-    connect(pipe_tee_to_mdot2.port_a, Tee_red.port_1)
-      annotation (Line(points={{218,34},{218,40}}, color={0,127,255}));
     connect(pipe_tee_to_mdot2.port_b, sensor_mdot2.port_a)
       annotation (Line(points={{218,14},{218,10}}, color={0,127,255}));
-    connect(Tee_red.port_3, abruptAdaptor.port_a)
-      annotation (Line(points={{208,50},{200,50}}, color={0,127,255}));
     connect(abruptAdaptor.port_b, pipe_tee_to_leak.port_a)
       annotation (Line(points={{180,50},{164,50}}, color={0,127,255}));
     connect(pipe_tee_to_leak.port_b, Leak_Valve.port_a)
       annotation (Line(points={{144,50},{134,50}}, color={0,127,255}));
     connect(pipe_leak_to_elbow.port_b, small_90.port_a)
-      annotation (Line(points={{88,50},{70,50}}, color={0,127,255}));
+      annotation (Line(points={{84,50},{70,50}}, color={0,127,255}));
     connect(small_90.port_b, pipe_small90_to_tank.port_a)
       annotation (Line(points={{70,30},{70,8}}, color={0,127,255}));
     connect(pipe_small90_to_tank.port_b, res_tank.ports[4]) annotation (Line(
@@ -1450,6 +1442,20 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       annotation (Line(points={{218,-10},{218,-14}}, color={0,127,255}));
     connect(pipe_mdot2_to_t2.port_b, tank2.ports[3]) annotation (Line(points={{
             218,-34},{218,-96},{201.333,-96},{201.333,-78}}, color={0,127,255}));
+    connect(Leak_Valve.port_b, pipe_leak_to_elbow.port_a)
+      annotation (Line(points={{114,50},{104,50}}, color={0,127,255}));
+    connect(Tee.port_a, pipe_mdot_to_tee.port_b) annotation (Line(points={{
+            -2.77556e-16,126},{1.77636e-15,56}}, color={0,127,255}));
+    connect(Tee.ports_b[1], pipe_tee_to_res.port_a)
+      annotation (Line(points={{-2,134},{-22,134}}, color={0,127,255}));
+    connect(Tee.ports_b[2], pipe_multi_to_t2.port_a)
+      annotation (Line(points={{2,134},{40,134}}, color={0,127,255}));
+    connect(pipe_elbow_to_tee.port_b, Tee_red.port_a)
+      annotation (Line(points={{218,68},{218,58}}, color={0,127,255}));
+    connect(Tee_red.ports_b[1], pipe_tee_to_mdot2.port_a) annotation (Line(
+          points={{220,50},{218,50},{218,34}}, color={0,127,255}));
+    connect(Tee_red.ports_b[2], abruptAdaptor.port_a)
+      annotation (Line(points={{216,50},{200,50}}, color={0,127,255}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-340,
               -200},{340,220}})), Diagram(coordinateSystem(preserveAspectRatio=
               false, extent={{-340,-200},{340,220}})));

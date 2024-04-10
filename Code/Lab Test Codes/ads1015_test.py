@@ -37,7 +37,8 @@ print("Reference voltage: {:6.3f}v \n".format(reference))
 
 try:
     while True:
-        print(ads1015.get_voltage(channel="in0/gnd"))
+        # print(ads1015.get_voltage(channel="in0/in1"), "......", ads1015.get_voltage(channel="in2/in3"))
+        print(ads1015.get_voltage(channel="in3/gnd"))
         time.sleep(0.5)
 
 except KeyboardInterrupt:

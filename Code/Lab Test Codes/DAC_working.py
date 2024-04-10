@@ -17,7 +17,7 @@ mcp4728 = adafruit_mcp4728.MCP4728(i2c)
 mcp4728.channel_a.value = int(65535 / 10)
 mcp4728.channel_b.value = int(65535 / 3)
 mcp4728.channel_c.value = int(65535 / 7)
-mcp4728.channel_d.value = int(65535 / 3)
+mcp4728.channel_d.value = int(65535 * 5 / 5.323)
 
 # Wait for a moment to ensure settings are applied
 time.sleep(0.5)

@@ -16,11 +16,11 @@ def runExample():
     
     #Turn on relays one and three
     myRelays.set_relay_on(1)
-    myRelays.set_relay_on(3)
-    time.sleep(1)
+    # myRelays.set_relay_on(3)
+    time.sleep(300)
     
     #Print the status of all relays
-    for relayNum in range(4):
+    for relayNum in range(1):
         current_status = None
         if myRelays.get_relay_state(relayNum) is True:
             current_status = "On"
@@ -29,16 +29,16 @@ def runExample():
         print("Status 1: " + current_status + "\n")
     
     #Turn off 1 and 3, turn on 2 and 4
-    myRelays.set_relay_off(1)
-    myRelays.set_relay_on(2)
-    myRelays.set_relay_off(3)
-    myRelays.set_relay_on(4)
+    # myRelays.set_relay_off(1)
+    # myRelays.set_relay_on(2)
+    # myRelays.set_relay_off(3)
+    # myRelays.set_relay_on(4)
     time.sleep(1)
     
 
-    #Turn all relays on, then turn them all off
-    myRelays.set_all_relays_on()
-    time.sleep(1)
+    # #Turn all relays on, then turn them all off
+    # myRelays.set_all_relays_on()
+    # time.sleep(1)
     
     myRelays.set_all_relays_off()
     

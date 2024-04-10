@@ -856,6 +856,12 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       annotation (Placement(transformation(extent={{56,-30},{46,-20}})));
     Modelica.Blocks.Sources.Constant tank1_Setpoint1(k=0.45)
       annotation (Placement(transformation(extent={{144,-26},{124,-6}})));
+    Modelica.Blocks.Sources.Sine sine1(
+      amplitude=0.15,
+      f=0.002,
+      offset=0.4,
+      startTime=400)
+      annotation (Placement(transformation(extent={{142,38},{122,58}})));
   equation
     connect(fishtank.t1_level, PID1.u_m) annotation (Line(points={{-13.8353,
             11.2381},{-13.8353,-2},{-68,-2},{-68,4}}, color={0,0,127}));
@@ -871,8 +877,8 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
             {-5.10588,51},{-5.10588,9.71429}}, color={0,0,127}));
     connect(fishtank.leak_sp, Leak_Setpoint.y) annotation (Line(points={{
             15.4824,1.33333},{38,1.33333},{38,-25},{45.5,-25}}, color={0,0,127}));
-    connect(tank2_Setpoint.y, PID2.u_s)
-      annotation (Line(points={{123,16},{72,16}}, color={0,0,127}));
+    connect(tank1_Setpoint1.y, PID2.u_s) annotation (Line(points={{123,-16},{78,
+            -16},{78,16},{72,16}}, color={0,0,127}));
     annotation (
       Diagram(coordinateSystem(extent={{-160,-60},{160,60}})),
       Icon(coordinateSystem(extent={{-160,-60},{160,60}})),
@@ -913,11 +919,11 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       nPorts=4,
       height=0.45,
       portsData={Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(diameter=
-          0.038, height=1.1),Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(
+          0.038, height=0),Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(
           diameter=0.038, height=1.1),
           Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(diameter=0.06,
-          height=0),Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(diameter
-          =0.013, height=1.1)},
+          height=1.1),Modelica.Fluid.Vessels.BaseClasses.VesselPortsData(
+          diameter=0.013, height=1.1)},
       level_start=0.3)
       annotation (Placement(transformation(extent={{-60,-186},{-20,-146}})));
     inner Modelica.Fluid.System system(energyDynamics=Modelica.Fluid.Types.Dynamics.FixedInitial)
@@ -1072,7 +1078,7 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
           extent={{10,10},{-10,-10}},
           rotation=90)));
     Modelica.Blocks.Sources.Constant tank1_reduction(k=0.45)
-      annotation (Placement(transformation(extent={{-266,-178},{-246,-158}})));
+      annotation (Placement(transformation(extent={{-266,-176},{-246,-156}})));
     Modelica.Blocks.Interfaces.RealInput cv1_sp annotation (Placement(
           transformation(
           extent={{-10,-10},{10,10}},
@@ -1379,8 +1385,8 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
       annotation (Line(points={{192,-142},{192,-156}}, color={0,127,255}));
     connect(reduction_2.port_b, res_tank.ports[3]) annotation (Line(points={{
             192,-176},{192,-186},{-38,-186}}, color={0,127,255}));
-    connect(tank1_reduction.y, reduction_1.opening) annotation (Line(points={{
-            -245,-168},{-226,-168},{-226,-166},{-218,-166}}, color={0,0,127}));
+    connect(tank1_reduction.y, reduction_1.opening)
+      annotation (Line(points={{-245,-166},{-218,-166}}, color={0,0,127}));
     connect(reduction_2.opening, tank2_reduction.y)
       annotation (Line(points={{200,-166},{235,-166}}, color={0,0,127}));
     connect(pipe_res_to_cv1.port_a, Res_Valve.port_b)
@@ -1457,8 +1463,8 @@ package FISHTANK "Model Package for the UTK NE Fishtank Testbed"
     connect(Tee_red.ports_b[2], abruptAdaptor.port_a)
       annotation (Line(points={{216,50},{200,50}}, color={0,127,255}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-340,
-              -200},{340,220}})), Diagram(coordinateSystem(preserveAspectRatio=
-              false, extent={{-340,-200},{340,220}})));
+              -220},{340,220}})), Diagram(coordinateSystem(preserveAspectRatio=
+              false, extent={{-340,-220},{340,220}})));
   end FT_w_degs_v2;
   annotation (uses(Modelica(version="4.0.0"), TRANSFORM(version="0.5")));
 end FISHTANK;

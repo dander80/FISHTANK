@@ -307,6 +307,7 @@ if __name__ == "__main__":
             update_plot(data)
             
             print(data['time']['rel'][-1])
+
             i += 1
 
     except KeyboardInterrupt:

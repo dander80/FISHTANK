@@ -1110,8 +1110,9 @@ package PowerPlant_Models
           3075600,1; 3132000,1; 3133200,0.8; 3154800,0.8; 3156000,1; 3304800,1;
           3306000,0.8; 3327600,0.8; 3328800,1; 3394800,1; 3395400,0.9; 3413400,
           0.9; 3414000,1; 3477600,1; 3478800,0.8; 3500400,0.8; 3501600,1;
-          3542400,1; 3628800,1; 4838400,1; 4839600,0.8; 5.3e6,0.8; 5.5e6,1;
-          5.7e6,1; 5.8e6,0.9; 6.65e6,0.9])
+          3542400,1; 3628800,1; 4838400,1; 4839600,0.8; 5300000,0.8; 5500000,1;
+          5700000,1; 5800000,0.9; 6650000,0.9; 6670000,1; 7880000,1; 7890000,
+          0.9; 9090000,0.9; 9100000,0.8; 10300000,0.8])
       annotation (Placement(transformation(extent={{-186,-108},{-166,-88}})));
     Modelica.Blocks.Sources.TimeTable residuals(table=[0,1; 86400,1; 108000,1;
           109200,0.8; 130800,0.8; 132000,1; 150000,1; 150600,0.9; 175800,0.9;
@@ -1124,7 +1125,7 @@ package PowerPlant_Models
       annotation (Placement(transformation(extent={{-134,-56},{-114,-36}})));
     Modelica.Blocks.Sources.TimeTable training2(table=[0,1; 1210000,1; 1220000,
           0.9; 2420000,0.9; 2430000,0.8; 3630000,0.8])
-      annotation (Placement(transformation(extent={{-186,-144},{-166,-124}})));
+      annotation (Placement(transformation(extent={{-184,-144},{-164,-124}})));
   equation
     connect(p_Control.y, nuScaleModule_v5_1.CR_reactivity) annotation (Line(
           points={{-123,4},{-102,4},{-102,-10},{-71.15,-10},{-71.15,-12}},
@@ -1177,17 +1178,18 @@ package PowerPlant_Models
             -90},{94,-89.6},{103.2,-89.6}}, color={0,0,127}));
     connect(realExpression2.y, SG_P)
       annotation (Line(points={{171,-30},{202,-30}}, color={0,0,127}));
-    connect(FWP_ramp.y, FWD_multipier.u2) annotation (Line(points={{127.3,-103},
-            {112.8,-103},{112.8,-89.6}}, color={0,0,127}));
-    connect(LF.y, product2.u1) annotation (Line(points={{-127.4,-98},{-106,-98},
-            {-106,-85.2},{-79.6,-85.2}}, color={0,0,127}));
+    connect(training1.y, product2.u1) annotation (Line(points={{-165,-98},{-146,
+            -98},{-146,-110},{-94,-110},{-94,-85.2},{-79.6,-85.2}}, color={0,0,
+            127}));
+    connect(no_FWP.y, FWD_multipier.u2) annotation (Line(points={{127.3,-133},{
+            112.8,-133},{112.8,-89.6}}, color={0,0,127}));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-220,
               -160},{220,120}})),                                  Diagram(
           coordinateSystem(preserveAspectRatio=false, extent={{-220,-160},{220,
               120}})),
       experiment(
-        StopTime=1210000,
-        Interval=1,
+        StopTime=10300000,
+        Interval=5,
         Tolerance=1e-05,
         __Dymola_Algorithm="Esdirk45a"));
   end PowerPlant_NPIC;

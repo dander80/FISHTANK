@@ -2,7 +2,7 @@ import Jetson.GPIO as GPIO
 import time
 
 # Flow Sensor:
-flow_sensor_pin = 7  # flow sensor attached to pin 6 (pin must also be an interrupt ("int") pin)
+flow_sensor_pin = 15  # flow sensor attached to pin 6 (pin must also be an interrupt ("int") pin)
 flow_calibration_factor = 0.2  # Note: F=(0.2*Q)±2% for this flow sensor, Q=L/Min, and F is pulse freq in 1/s
 flow_pulse_count = 0
 old_time = 0
